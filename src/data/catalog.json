@@ -1,0 +1,2001 @@
+{
+  "categories": [
+    {
+      "slug": "industries",
+      "name": "Industries",
+      "summary": "Packaging by industry, from cosmetics to food.",
+      "description": "",
+      "cardSupportingText": "",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "box-styles",
+      "name": "Box Styles",
+      "summary": "Shop all structural box styles and print products.",
+      "description": "",
+      "cardSupportingText": "",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "collection",
+      "name": "Collections",
+      "summary": "Print collateral and specialty packaging collections.",
+      "description": "",
+      "cardSupportingText": "",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "promotions",
+      "name": "Promotions",
+      "summary": "Seasonal and promotional packaging deals.",
+      "description": "",
+      "cardSupportingText": "",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "best-selling",
+      "name": "Best Selling",
+      "summary": "Our most requested custom packaging styles.",
+      "description": "",
+      "cardSupportingText": "",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "boxes-with-lids-industries",
+      "name": "Boxes with Lids",
+      "summary": "Secure, reusable packaging for gifts and retail.",
+      "description": "",
+      "cardSupportingText": "<ul class=\"category-features\">\r\n<li>Secure &amp; Tidy Packaging</li>\r\n<li>Reusable &amp; Durable</li>\r\n<li>Perfect for Gifts</li>\r\n</ul>",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "apparel-boxes-2",
+      "name": "Apparel Boxes",
+      "summary": "Protective retail boxes that keep garments presentation-ready.",
+      "description": "",
+      "cardSupportingText": "<ul class=\"category-features\">\r\n<li>Keeps Clothes Safe</li>\r\n<li>Perfect for Retail</li>\r\n<li>Looks Nice</li>\r\n</ul>",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "retail-packaging",
+      "name": "Retail Packaging",
+      "summary": "Lightweight, eco-friendly packaging built for shelves.",
+      "description": "",
+      "cardSupportingText": "<ul class=\"category-features\">\r\n<li>Eco Friendly</li>\r\n<li>Light Weight</li>\r\n<li>Easy to Use</li>\r\n</ul>",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "gift-boxes",
+      "name": "Gift Boxes",
+      "summary": "Luxury finishes made for unboxing moments.",
+      "description": "",
+      "cardSupportingText": "<ul class=\"category-features\">\r\n<li>Attractive design</li>\r\n<li>Decorative appeal</li>\r\n<li>Luxury finish</li>\r\n</ul>",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "food-packaging",
+      "name": "Food Packaging",
+      "summary": "Tamper-evident, food-safe options with a sustainability focus.",
+      "description": "",
+      "cardSupportingText": "<ul class=\"category-features\">\r\n<li>Sustainability focus</li>\r\n<li>Tamper-evident</li>\r\n<li>Eco-friendly</li>\r\n</ul>",
+      "image": "",
+      "parentSlug": ""
+    },
+    {
+      "slug": "cosmetic-boxes",
+      "name": "Cosmetic Boxes",
+      "summary": "This is short description of this cateogry, it will appear on the category card.",
+      "description": "This text area be used to put the description of the category which will appear on the category page under the title of the category.",
+      "cardSupportingText": "<ul>\r\n<li>Branding opportunity</li>\r\n<li>Protective packaging</li>\r\n<li>Elegant design</li>\r\n</ul>",
+      "image": "",
+      "parentSlug": ""
+    }
+  ],
+  "packages": [
+    {
+      "slug": "kraft-boxes-with-lid",
+      "name": "Kraft boxes with lid",
+      "summary": "Stylish kraft boxes with lids — simple, sustainable, and fully customizable.",
+      "body": "Embrace the beauty of simplicity and sustainability with our kraft boxes with lids. These versatile boxes protect products, lift your brand, and work for retail, gifts, and e-commerce.",
+      "categorySlugs": [
+        "boxes-with-lids-industries",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "rigid-gift-boxes-with-lids",
+        "candle-boxes-with-lids",
+        "clear-lid-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "rigid-gift-boxes-with-lids",
+      "name": "Rigid Gift Boxes with lids",
+      "summary": "Premium rigid lid boxes for luxury gifting and retail.",
+      "body": "Heavyweight rigid construction with a separate lid. Ideal for premium gifts, kits, and unboxing experiences.",
+      "categorySlugs": [
+        "boxes-with-lids-industries",
+        "gift-boxes",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "kraft-boxes-with-lid",
+        "candle-boxes-with-lids"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "candle-boxes-with-lids",
+      "name": "Candle boxes with lids",
+      "summary": "Protective lid boxes sized for jars, tins, and candle sets.",
+      "body": "Custom candle packaging with optional inserts, windows, and foil stamping.",
+      "categorySlugs": [
+        "boxes-with-lids-industries",
+        "gift-boxes",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "kraft-boxes-with-lid",
+        "clear-lid-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "clear-lid-boxes",
+      "name": "Clear Lid Boxes",
+      "summary": "Show the product through a clear lid while keeping it protected.",
+      "body": "Clear-lid packaging for bakery, cosmetics, and gift sets that need visibility on shelf.",
+      "categorySlugs": [
+        "boxes-with-lids-industries",
+        "retail-packaging",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "kraft-boxes-with-lid",
+        "hinged-fliped-lid-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "hinged-fliped-lid-boxes",
+      "name": "Hinged Fliped Lid Boxes",
+      "summary": "Hinged lid boxes that stay attached for easy open and close.",
+      "body": "A practical lid style for mailers, kits, and repeat-use packaging.",
+      "categorySlugs": [
+        "boxes-with-lids-industries",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "kraft-boxes-with-lid",
+        "clear-lid-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "hexagon-box-style",
+      "name": "Hexagon Box Style",
+      "summary": "A distinctive hexagon structure for premium unboxing.",
+      "body": "Hexagon boxes create a unique unboxing moment for cosmetics, confectionery, and gifts.",
+      "categorySlugs": [
+        "box-styles",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "four-corner-box-style",
+        "two-piece-box-style"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "four-corner-box-style",
+      "name": "Four Corner Box Style",
+      "summary": "Classic four-corner construction for sturdy retail packaging.",
+      "body": "Four-corner trays and lids for bakery, apparel, and retail display.",
+      "categorySlugs": [
+        "box-styles",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "hexagon-box-style",
+        "two-piece-box-style"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "glass-carrier",
+      "name": "Glass Carrier",
+      "summary": "Carriers built to hold bottles and glass products securely.",
+      "body": "Custom glass carriers with partitions for bottles, jars, and gift sets.",
+      "categorySlugs": [
+        "box-styles",
+        "collection",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "two-piece-box-style",
+        "hang-tabs"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "two-piece-box-style",
+      "name": "Two Piece Box Style",
+      "summary": "Separate base and lid — the classic two-piece gift box.",
+      "body": "Two-piece rigid or folding boxes for apparel, cosmetics, and corporate gifts.",
+      "categorySlugs": [
+        "box-styles",
+        "gift-boxes",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "hexagon-box-style",
+        "rigid-gift-boxes-with-lids"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "business-cards",
+      "name": "Business Cards",
+      "summary": "Custom printed business cards with premium stocks and finishes.",
+      "body": "Offset or digital cards with foil, spot UV, and soft-touch options.",
+      "categorySlugs": [
+        "box-styles",
+        "collection",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "hang-tabs",
+        "flyers"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "hang-tabs",
+      "name": "Hang Tabs",
+      "summary": "Retail hang tabs for peg-hook merchandising.",
+      "body": "Custom hang tabs that pair with blister cards and retail packaging.",
+      "categorySlugs": [
+        "box-styles",
+        "collection",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "business-cards",
+        "blister-cards"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "lipstick-boxes",
+      "name": "Lipstick Boxes",
+      "summary": "Slim, branded boxes for lipstick and lip-care SKUs.",
+      "body": "Cosmetic lipstick packaging with foil, embossing, and custom inserts.",
+      "categorySlugs": [
+        "cosmetic-boxes",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "custom-perfume-boxes",
+        "custom-eyelash-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "custom-perfume-boxes",
+      "name": "Custom Perfume Boxes",
+      "summary": "Fragrance boxes with luxury print and protective inserts.",
+      "body": "Perfume packaging designed for retail display and gifting.",
+      "categorySlugs": [
+        "cosmetic-boxes",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "lipstick-boxes",
+        "custom-cosmetic-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "custom-eyelash-boxes",
+      "name": "Custom Eyelash Boxes",
+      "summary": "Compact lash boxes with clear windows or magnetic lids.",
+      "body": "Eyelash packaging that shows the product and protects delicate lashes.",
+      "categorySlugs": [
+        "cosmetic-boxes",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "lipstick-boxes",
+        "custom-hair-extension-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "custom-hair-extension-boxes",
+      "name": "Custom Hair Extension Boxes",
+      "summary": "Long-format boxes for hair extensions and beauty kits.",
+      "body": "Durable beauty packaging sized for wefts, kits, and salon retail.",
+      "categorySlugs": [
+        "cosmetic-boxes",
+        "apparel-boxes-2",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "custom-cosmetic-boxes",
+        "custom-eyelash-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "custom-cosmetic-boxes",
+      "name": "Custom Cosmetic Boxes",
+      "summary": "Full-range cosmetic packaging for makeup and skincare.",
+      "body": "Custom cosmetic boxes with your branding, finishes, and inserts.",
+      "categorySlugs": [
+        "cosmetic-boxes",
+        "industries",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "lipstick-boxes",
+        "custom-perfume-boxes"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "flyers",
+      "name": "Flyers",
+      "summary": "Promotional flyers for inserts and campaigns.",
+      "body": "Custom flyers printed to match your packaging suite.",
+      "categorySlugs": [
+        "collection",
+        "promotions",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "business-cards",
+        "brochures"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "brochures",
+      "name": "Brochures",
+      "summary": "Folded brochures for product stories and catalogs.",
+      "body": "Multi-panel brochures with the same print finishes as your boxes.",
+      "categorySlugs": [
+        "collection",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "flyers",
+        "booklets"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "booklets",
+      "name": "Booklets",
+      "summary": "Saddle-stitched booklets for instructions and lookbooks.",
+      "body": "Packaging inserts and brand booklets, printed in-house.",
+      "categorySlugs": [
+        "collection",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "brochures",
+        "flyers"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "blister-cards",
+      "name": "Blister Cards",
+      "summary": "Display cards for blister and clamshell retail packs.",
+      "body": "Custom blister cards with hang holes and high-impact print.",
+      "categorySlugs": [
+        "collection",
+        "retail-packaging",
+        "best-selling"
+      ],
+      "relatedSlugs": [
+        "hang-tabs",
+        "business-cards"
+      ],
+      "image": "",
+      "gallery": [],
+      "relatedMode": "manual",
+      "faqs": [],
+      "tabs": [],
+      "faqsEnabled": true,
+      "tabsOverride": false,
+      "faqsOverride": false,
+      "extraContent": "",
+      "extraContentOverride": false
+    },
+    {
+      "slug": "zakir-ali",
+      "name": "zakir ali",
+      "summary": "<p>this is short descripton</p>",
+      "body": "<p>this is detailed description</p>",
+      "image": "/uploads/products/zakir-ali/1787205175222-enepqj.webp",
+      "gallery": [
+        "/uploads/products/zakir-ali/1787397147763-2dhcih.webp",
+        "/uploads/products/zakir-ali/1787397147767-p6w3vb.webp",
+        "/uploads/products/zakir-ali/1787397147770-uyjtvc.webp",
+        "/uploads/products/zakir-ali/1787397147772-j7va3s.webp",
+        "/uploads/products/zakir-ali/1787397147775-4o4dn1.webp"
+      ],
+      "categorySlugs": [
+        "best-selling"
+      ],
+      "relatedMode": "manual",
+      "relatedSlugs": [
+        "clear-lid-boxes",
+        "hinged-fliped-lid-boxes",
+        "hexagon-box-style",
+        "rigid-gift-boxes-with-lids"
+      ],
+      "faqs": [
+        {
+          "question": "What is the minimum order quantity?",
+          "answer": "Tthe minimum order quanity is one thousan."
+        },
+        {
+          "question": "How much time will it take to deliver.",
+          "answer": "Normally, it takes four working days to deliver."
+        }
+      ],
+      "faqsEnabled": true,
+      "faqsOverride": true,
+      "extraContent": "<h1>this is extra content</h1>\r\n<h2 data-start=\"0\" data-end=\"68\"><strong>Stylish Kraft Boxes with Lids</strong></h2>\r\n<p data-start=\"70\" data-end=\"488\"><strong data-start=\"70\" data-end=\"125\">Embrace the beauty of simplicity and sustainability</strong>&nbsp;with our kraft boxes with lids. These versatile boxes provide an eco-friendly yet sturdy packaging solution for a variety of products, making them an ideal choice for businesses that value quality and environmental responsibility. Whether you&rsquo;re looking for packaging for retail, gifts, or storage, kraft boxes with lids offer durability, style, and versatility.</p>\r\n<h3 data-start=\"490\" data-end=\"532\"><strong data-start=\"493\" data-end=\"532\">Materials and Manufacturing Process</strong></h3>\r\n<p data-start=\"534\" data-end=\"818\">Kraft boxes with lids are made from&nbsp;<strong data-start=\"570\" data-end=\"585\">kraft paper</strong>, a highly durable and sustainable material that gives the packaging a natural and rustic appearance. The process of creating these boxes is eco-conscious, ensuring that each box is made with both strength and sustainability in mind.</p>\r\n<ul data-start=\"820\" data-end=\"1380\">\r\n<li data-start=\"820\" data-end=\"1122\">\r\n<p data-start=\"822\" data-end=\"1122\"><strong data-start=\"822\" data-end=\"850\">Eco-Friendly Kraft Paper</strong>: The kraft paper used is typically made from recycled materials, ensuring that your packaging choice is as environmentally responsible as possible. The unbleached nature of kraft paper gives the boxes a natural, rustic look that aligns with today&rsquo;s sustainability trends.</p>\r\n</li>\r\n<li data-start=\"1126\" data-end=\"1380\">\r\n<p data-start=\"1128\" data-end=\"1380\"><strong data-start=\"1128\" data-end=\"1152\">Durable Construction</strong>: The kraft boxes are designed with reinforced edges, providing enhanced durability to protect the contents. This makes them suitable for various products, from lightweight items to more robust goods that require added strength.</p>\r\n</li>\r\n</ul>\r\n<p data-start=\"1382\" data-end=\"1640\">Our manufacturing process ensures precision cutting and folding, resulting in neatly shaped boxes with clean seams. The lid is securely attached to ensure that your products stay protected during shipping and storage, while also being easy to open and close.</p>\r\n<h2 data-start=\"1642\" data-end=\"1670\"><strong data-start=\"1645\" data-end=\"1670\">Customization Options</strong></h2>\r\n<p data-start=\"1672\" data-end=\"1816\">Our kraft boxes with lids can be customized to suit your branding and packaging needs. Here are some of the ways you can personalize your boxes:</p>\r\n<h3 data-start=\"1818\" data-end=\"1845\"><strong data-start=\"1822\" data-end=\"1845\">Printing Techniques</strong></h3>\r\n<ul data-start=\"1847\" data-end=\"2338\">\r\n<li data-start=\"1847\" data-end=\"2002\">\r\n<p data-start=\"1849\" data-end=\"2002\"><strong data-start=\"1849\" data-end=\"1874\">Flexographic Printing</strong>: Ideal for bulk orders, flexographic printing offers high-quality designs at a cost-effective price, especially for large runs.</p>\r\n</li>\r\n<li data-start=\"2003\" data-end=\"2174\">\r\n<p data-start=\"2005\" data-end=\"2174\"><strong data-start=\"2005\" data-end=\"2025\">Digital Printing</strong>: For smaller orders or personalized packaging, digital printing allows you to create high-resolution images and designs with quick turnaround times.</p>\r\n</li>\r\n<li data-start=\"2175\" data-end=\"2338\">\r\n<p data-start=\"2177\" data-end=\"2338\"><strong data-start=\"2177\" data-end=\"2204\">Embossing and Debossing</strong>: Add texture and a luxurious tactile element by embossing or debossing logos, brand names, or decorative elements onto the kraft box.</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"2340\" data-end=\"2369\"><strong data-start=\"2344\" data-end=\"2369\">Finishes and Coatings</strong></h3>\r\n<ul data-start=\"2371\" data-end=\"2906\">\r\n<li data-start=\"2371\" data-end=\"2579\">\r\n<p data-start=\"2373\" data-end=\"2579\"><strong data-start=\"2373\" data-end=\"2400\">Matte or Glossy Coating</strong>: Both matte and glossy finishes can be applied to the box, with a matte finish offering a more organic, understated look, and glossy providing a shinier, more premium appearance.</p>\r\n</li>\r\n<li data-start=\"2580\" data-end=\"2764\">\r\n<p data-start=\"2582\" data-end=\"2764\"><strong data-start=\"2582\" data-end=\"2601\">Spot UV Coating</strong>: Spot UV coating can be used to highlight specific elements, such as logos or text, to create a striking contrast between the matte and gloss sections of the box.</p>\r\n</li>\r\n<li data-start=\"2765\" data-end=\"2906\">\r\n<p data-start=\"2767\" data-end=\"2906\"><strong data-start=\"2767\" data-end=\"2784\">Foil Stamping</strong>: Add metallic accents to the box for an elegant touch, perfect for special occasions, luxury products, or premium brands.</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"2908\" data-end=\"2927\"><strong data-start=\"2912\" data-end=\"2927\">Lid Options</strong></h3>\r\n<ul data-start=\"2929\" data-end=\"3447\">\r\n<li data-start=\"2929\" data-end=\"3115\">\r\n<p data-start=\"2931\" data-end=\"3115\"><strong data-start=\"2931\" data-end=\"2948\">Lift-off Lids</strong>: The most common and traditional lid design, which allows for easy opening and closing. These lids are perfect for showcasing your products while keeping them secure.</p>\r\n</li>\r\n<li data-start=\"3116\" data-end=\"3268\">\r\n<p data-start=\"3118\" data-end=\"3268\"><strong data-start=\"3118\" data-end=\"3133\">Hinged Lids</strong>: Ideal for products that require frequent access, hinged lids are attached to the box, making them more convenient and easy to handle.</p>\r\n</li>\r\n<li data-start=\"3269\" data-end=\"3447\">\r\n<p data-start=\"3271\" data-end=\"3447\"><strong data-start=\"3271\" data-end=\"3292\">Magnetic Closures</strong>: For a higher-end, secure packaging solution, magnetic closures ensure that the box stays tightly sealed, offering added protection for valuable products.</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"3449\" data-end=\"3483\"><strong data-start=\"3453\" data-end=\"3483\">Additional Custom Features</strong></h3>\r\n<ul data-start=\"3485\" data-end=\"3958\">\r\n<li data-start=\"3485\" data-end=\"3616\">\r\n<p data-start=\"3487\" data-end=\"3616\"><strong data-start=\"3487\" data-end=\"3498\">Handles</strong>: Add handles to the box to make it easier for customers to carry, making them great for gifts or items sold in-store.</p>\r\n</li>\r\n<li data-start=\"3617\" data-end=\"3795\">\r\n<p data-start=\"3619\" data-end=\"3795\"><strong data-start=\"3619\" data-end=\"3630\">Windows</strong>: A clear plastic or acetate window can be added to show off your products while maintaining protection. This is perfect for food items, gifts, or small accessories.</p>\r\n</li>\r\n<li data-start=\"3796\" data-end=\"3958\">\r\n<p data-start=\"3798\" data-end=\"3958\"><strong data-start=\"3798\" data-end=\"3819\">Internal Dividers</strong>: If you&rsquo;re packaging multiple items in one box, internal dividers help keep products separated and protected from damage during transport.</p>\r\n</li>\r\n</ul>\r\n<h2 data-start=\"3960\" data-end=\"4010\"><strong data-start=\"3963\" data-end=\"4010\">Practical Benefits of Kraft Boxes with Lids</strong></h2>\r\n<h3 data-start=\"4012\" data-end=\"4045\"><strong data-start=\"4016\" data-end=\"4045\">Durability and Protection</strong></h3>\r\n<ul data-start=\"4047\" data-end=\"4516\">\r\n<li data-start=\"4047\" data-end=\"4205\">\r\n<p data-start=\"4049\" data-end=\"4205\"><strong data-start=\"4049\" data-end=\"4069\">Sturdy Structure</strong>: Kraft paper provides a strong, reliable structure that can handle moderate weights, making it suitable for a wide variety of products.</p>\r\n</li>\r\n<li data-start=\"4206\" data-end=\"4369\">\r\n<p data-start=\"4208\" data-end=\"4369\"><strong data-start=\"4208\" data-end=\"4244\">Protection Against Dust and Dirt</strong>: The secure lid protects the contents of the box from dust, dirt, and moisture, ensuring that your products remain pristine.</p>\r\n</li>\r\n<li data-start=\"4370\" data-end=\"4516\">\r\n<p data-start=\"4372\" data-end=\"4516\"><strong data-start=\"4372\" data-end=\"4393\">Customizable Size</strong>: Kraft boxes with lids come in a variety of sizes to fit a range of products, from small accessories to larger gift items.</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"4518\" data-end=\"4540\"><strong data-start=\"4522\" data-end=\"4540\">Sustainability</strong></h3>\r\n<ul data-start=\"4542\" data-end=\"4993\">\r\n<li data-start=\"4542\" data-end=\"4792\">\r\n<p data-start=\"4544\" data-end=\"4792\"><strong data-start=\"4544\" data-end=\"4570\">Eco-Friendly Packaging</strong>: Kraft paper is fully recyclable and biodegradable, making it an environmentally responsible packaging choice. By opting for kraft boxes with lids, you are supporting sustainability and reducing your environmental impact.</p>\r\n</li>\r\n<li data-start=\"4793\" data-end=\"4993\">\r\n<p data-start=\"4795\" data-end=\"4993\"><strong data-start=\"4795\" data-end=\"4824\">Natural, Rustic Aesthetic</strong>: The unbleached kraft paper gives your packaging a rustic, organic look that appeals to environmentally conscious customers and aligns with today&rsquo;s eco-friendly trends.</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"4995\" data-end=\"5030\"><strong data-start=\"4999\" data-end=\"5030\">Convenience and Versatility</strong></h3>\r\n<ul data-start=\"5032\" data-end=\"5369\">\r\n<li data-start=\"5032\" data-end=\"5204\">\r\n<p data-start=\"5034\" data-end=\"5204\"><strong data-start=\"5034\" data-end=\"5064\">Easy Storage and Transport</strong>: The sturdy yet lightweight nature of kraft boxes makes them easy to stack, store, and transport, saving space and reducing shipping costs.</p>\r\n</li>\r\n<li data-start=\"5205\" data-end=\"5369\">\r\n<p data-start=\"5207\" data-end=\"5369\"><strong data-start=\"5207\" data-end=\"5228\">Multi-Purpose Use</strong>: Whether you&rsquo;re packaging retail products, gifts, or storage items, these boxes are versatile and suitable for a wide range of applications.</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"5417\" data-end=\"5461\"><strong data-start=\"5421\" data-end=\"5461\">Wholesale and Bulk Purchase Benefits</strong></h3>\r\n<p data-start=\"5463\" data-end=\"5649\">If you&rsquo;re looking for cost-effective packaging for your business, our kraft boxes with lids come at competitive prices for bulk orders. Some of the advantages of bulk purchasing include:</p>\r\n<ul data-start=\"5651\" data-end=\"5795\">\r\n<li data-start=\"5651\" data-end=\"5694\">\r\n<p data-start=\"5653\" data-end=\"5694\"><strong data-start=\"5653\" data-end=\"5677\">Lower per-unit costs</strong>&nbsp;for large orders</p>\r\n</li>\r\n<li data-start=\"5695\" data-end=\"5736\">\r\n<p data-start=\"5697\" data-end=\"5736\"><strong data-start=\"5697\" data-end=\"5719\">Consistent quality</strong>&nbsp;across all units</p>\r\n</li>\r\n<li data-start=\"5737\" data-end=\"5795\">\r\n<p data-start=\"5739\" data-end=\"5795\"><strong data-start=\"5739\" data-end=\"5774\">Efficient and reliable delivery</strong>&nbsp;for large quantities</p>\r\n</li>\r\n</ul>\r\n<h3 data-start=\"5797\" data-end=\"5836\"><strong data-start=\"5801\" data-end=\"5836\">Customization to Fit Your Brand</strong></h3>\r\n<p data-start=\"5838\" data-end=\"6053\">Our team works with you to ensure that your kraft boxes with lids reflect your brand&rsquo;s unique identity. From custom sizes to specific finishes and designs, we ensure your packaging aligns with your business&rsquo;s goals.</p>\r\n<h3 data-start=\"6055\" data-end=\"6094\"><strong data-start=\"6059\" data-end=\"6094\">Customer Satisfaction Guarantee</strong></h3>\r\n<p data-start=\"6096\" data-end=\"6337\">We strive to provide excellent customer service, ensuring that your kraft boxes with lids are made to your exact specifications. Whether you need help with design, sizing, or order placement, our team is here to assist every step of the way.</p>\r\n<h2 data-start=\"6339\" data-end=\"6393\"><strong data-start=\"6342\" data-end=\"6393\">Get Started with Your Custom Kraft Boxes Today!</strong></h2>\r\n<p data-start=\"6395\" data-end=\"6613\">Ready to enhance your product packaging with kraft boxes with lids? Whether you&rsquo;re in retail, e-commerce, or offering corporate gifts, these boxes offer the perfect combination of durability, style, and sustainability.</p>\r\n<p data-start=\"6640\" data-end=\"6840\" data-is-last-node=\"\" data-is-only-node=\"\"><strong data-start=\"6640\" data-end=\"6660\">Contact us today</strong> to explore our range of customizable kraft boxes with lids. Request a free quote, discuss your design options, and start creating the perfect packaging solution for your products!</p>",
+      "extraContentOverride": false,
+      "tabs": [
+        {
+          "title": "Material / Paper Stock We Use",
+          "source": "template",
+          "template": "specifications",
+          "content": ""
+        }
+      ],
+      "tabsOverride": false
+    }
+  ],
+  "tabTemplates": [
+    {
+      "slug": "materials",
+      "name": "Material / paper stock",
+      "layout": [
+        {
+          "id": "default-materials-section",
+          "columns": [
+            {
+              "id": "default-materials-icon",
+              "span": 4,
+              "widgets": [
+                {
+                  "id": "default-materials-icon-w",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "icon",
+                  "name": "layers",
+                  "label": "Material / paper stock"
+                }
+              ]
+            },
+            {
+              "id": "default-materials-copy",
+              "span": 8,
+              "widgets": [
+                {
+                  "id": "default-materials-text",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "text",
+                  "html": "<p>Duplex chipboard, grey chipboard, black-kraft, holographic, metallic, natural brown kraft, textured, and white kraft.</p>"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "printing",
+      "name": "Printing methods",
+      "layout": [
+        {
+          "id": "default-printing-section",
+          "columns": [
+            {
+              "id": "default-printing-icon",
+              "span": 4,
+              "widgets": [
+                {
+                  "id": "default-printing-icon-w",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "icon",
+                  "name": "print",
+                  "label": "Printing methods"
+                }
+              ]
+            },
+            {
+              "id": "default-printing-copy",
+              "span": 8,
+              "widgets": [
+                {
+                  "id": "default-printing-text",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "text",
+                  "html": "<p>Digital, offset, Scodix enhancement, and UV print.</p>"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "finishing",
+      "name": "Inks, finishing, add-ons",
+      "layout": [
+        {
+          "id": "default-finishing-section",
+          "columns": [
+            {
+              "id": "default-finishing-icon",
+              "span": 4,
+              "widgets": [
+                {
+                  "id": "default-finishing-icon-w",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "icon",
+                  "name": "star",
+                  "label": "Inks, finishing, add-ons"
+                }
+              ]
+            },
+            {
+              "id": "default-finishing-copy",
+              "span": 8,
+              "widgets": [
+                {
+                  "id": "default-finishing-text",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "text",
+                  "html": "<p>Pantone, soy, fluorescent, and metallic inks. Soft-touch, lamination, spot UV, foil, embossing, debossing, PVC patch, and ribbon handles.</p>"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "specifications",
+      "name": "Material / Paper Stock We Use",
+      "layout": [
+        {
+          "id": "5ecb0cad-a62c-444c-b713-7c68a775657a",
+          "columns": [
+            {
+              "id": "0c763f72-0180-4f1b-8b6b-268c05f43e91",
+              "span": 12,
+              "widgets": [
+                {
+                  "id": "f1c5cd09-f952-4619-aac7-5429fdc3189d",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 10
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "Work Sans",
+                        "fontSize": {
+                          "value": 20,
+                          "unit": "px"
+                        },
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "heading",
+                  "tag": "h3",
+                  "text": "Material / Paper Stock We Use"
+                },
+                {
+                  "id": "7b44b633-5a9c-4c12-a866-bc31ceb4cab4",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "text",
+                  "html": "<p>When packaging is meant for protecting and prompting products, the material/paper stock ensures integrity and safety. Well-known cardboard packaging material is synonymous with durability and resilience. Kraft is delicate to take care of your fragile items. Corrugated boxes are tough to bear the tear and shear of external stresses. We have arranged the world&rsquo;s finesse stock of papers full of qualities; sustainability, affordability, and elegance.</p>"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "37a1884e-7598-4700-b209-1724fe5ea153",
+          "columns": [
+            {
+              "id": "1fdab6db-9429-46b1-8767-5ad750e21979",
+              "span": 12,
+              "widgets": [
+                {
+                  "id": "e3c7b883-4e49-4317-a7c5-0b0659f0ceb9",
+                  "appearance": {
+                    "lg": {
+                      "align": "left",
+                      "color": "",
+                      "background": "",
+                      "margin": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "padding": {
+                        "top": 0,
+                        "right": 0,
+                        "left": 0,
+                        "bottom": 0
+                      },
+                      "border": {
+                        "width": 0,
+                        "style": "none",
+                        "color": "",
+                        "radius": 0
+                      },
+                      "shadow": {
+                        "enabled": false,
+                        "x": 0,
+                        "y": 0,
+                        "blur": 8,
+                        "spread": 0,
+                        "color": "rgba(0,0,0,0.15)",
+                        "inset": false
+                      },
+                      "typography": {
+                        "fontFamily": "",
+                        "fontSize": null,
+                        "fontWeight": "",
+                        "textTransform": "none",
+                        "fontStyle": "normal",
+                        "textDecoration": "none",
+                        "lineHeight": null,
+                        "letterSpacing": null,
+                        "wordSpacing": null
+                      },
+                      "sizeMode": "custom",
+                      "objectFit": "contain",
+                      "objectPosition": "center",
+                      "width": 100,
+                      "widthUnit": "%",
+                      "height": 0,
+                      "heightUnit": "px",
+                      "spacerHeight": 24,
+                      "divider": false,
+                      "buttonStyle": "yellow",
+                      "iconSize": 24
+                    }
+                  },
+                  "type": "grid",
+                  "sizes": {
+                    "md": {
+                      "columns": 2,
+                      "rows": 2,
+                      "gap": 16
+                    },
+                    "lg": {
+                      "columns": 4,
+                      "rows": 1,
+                      "gap": 16
+                    }
+                  },
+                  "cells": [
+                    {
+                      "id": "6991042a-c988-4874-8802-a43684cdf3ae",
+                      "widgets": [
+                        {
+                          "id": "082d5f33-7ea4-4d05-8cd7-7473deb5f289",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "custom",
+                              "objectFit": "contain",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "image",
+                          "src": "/uploads/products/templates-specifications/1787210046157-2v6st9.jpg",
+                          "alt": ""
+                        },
+                        {
+                          "id": "3659a77c-96e1-46c0-8a59-44ef88d965c1",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "custom",
+                              "objectFit": "contain",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "text",
+                          "html": "<div class=\"has_eae_slider elementor-element elementor-element-8b20a27 e-con-full e-flex e-con e-child\" data-eae-slider=\"90105\" data-id=\"8b20a27\" data-element_type=\"container\" data-e-type=\"container\">\n<div class=\"elementor-element elementor-element-85b04c3 elementor-widget elementor-widget-heading\" data-id=\"85b04c3\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"heading.default\">\n<div class=\"elementor-widget-container\">\n<h4 class=\"elementor-heading-title elementor-size-default\" style=\"text-align: center;\">Duplex Chipboard</h4>\n</div>\n</div>\n</div>"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "02805a22-838b-408c-824b-dcd249c90c4a",
+                      "widgets": [
+                        {
+                          "id": "39cdc6d4-0994-4f0f-80fb-4f802fcff103",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "custom",
+                              "objectFit": "contain",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "image",
+                          "src": "/uploads/products/templates-specifications/1787210061409-gh1tac.webp",
+                          "alt": ""
+                        },
+                        {
+                          "id": "3c16d33a-7115-48b2-a613-10a64a8b47b5",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "custom",
+                              "objectFit": "contain",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "text",
+                          "html": "<div class=\"has_eae_slider elementor-element elementor-element-2299649 e-con-full e-flex e-con e-child\" data-eae-slider=\"42152\" data-id=\"2299649\" data-element_type=\"container\" data-e-type=\"container\">\n<div class=\"elementor-element elementor-element-9c60cb7 elementor-widget elementor-widget-heading\" data-id=\"9c60cb7\" data-element_type=\"widget\" data-e-type=\"widget\" data-widget_type=\"heading.default\">\n<div class=\"elementor-widget-container\">\n<h4 class=\"elementor-heading-title elementor-size-default\">Grey Chipboard Cardboard</h4>\n</div>\n</div>\n</div>"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "a8c3c812-083a-420a-92a4-cdb7cdc460db",
+                      "widgets": [
+                        {
+                          "id": "2f879fb9-fd57-4448-98a8-616ddcff9b0b",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "fill-height",
+                              "objectFit": "cover",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "image",
+                          "src": "/uploads/products/templates-specifications/1787210074214-hkg3hl.webp",
+                          "alt": ""
+                        },
+                        {
+                          "id": "00322c2d-9a2a-4d00-b9fc-0ca6614d878e",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "custom",
+                              "objectFit": "contain",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "text",
+                          "html": "<h4 class=\"elementor-heading-title elementor-size-default\">Black-Kraft</h4>"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "4559bd57-6677-431a-adde-6da062f32396",
+                      "widgets": [
+                        {
+                          "id": "38202e41-5a42-4600-ab38-95a56cc10e62",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "fill-height",
+                              "objectFit": "cover",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 100,
+                              "heightUnit": "%",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "image",
+                          "src": "/uploads/products/templates-specifications/1787210085041-6rh4qo.jpg",
+                          "alt": ""
+                        },
+                        {
+                          "id": "79de837f-f6de-4df3-b2fc-8e7ba2e1d545",
+                          "appearance": {
+                            "lg": {
+                              "align": "left",
+                              "color": "",
+                              "background": "",
+                              "margin": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "padding": {
+                                "top": 0,
+                                "right": 0,
+                                "left": 0,
+                                "bottom": 0
+                              },
+                              "border": {
+                                "width": 0,
+                                "style": "none",
+                                "color": "",
+                                "radius": 0
+                              },
+                              "shadow": {
+                                "enabled": false,
+                                "x": 0,
+                                "y": 0,
+                                "blur": 8,
+                                "spread": 0,
+                                "color": "rgba(0,0,0,0.15)",
+                                "inset": false
+                              },
+                              "typography": {
+                                "fontFamily": "",
+                                "fontSize": null,
+                                "fontWeight": "",
+                                "textTransform": "none",
+                                "fontStyle": "normal",
+                                "textDecoration": "none",
+                                "lineHeight": null,
+                                "letterSpacing": null,
+                                "wordSpacing": null
+                              },
+                              "sizeMode": "custom",
+                              "objectFit": "contain",
+                              "objectPosition": "center",
+                              "width": 100,
+                              "widthUnit": "%",
+                              "height": 0,
+                              "heightUnit": "px",
+                              "spacerHeight": 24,
+                              "divider": false,
+                              "buttonStyle": "yellow",
+                              "iconSize": 24
+                            }
+                          },
+                          "type": "text",
+                          "html": "<h4 class=\"elementor-heading-title elementor-size-default\">Holographic</h4>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tags": [],
+  "attributes": [],
+  "reviews": [],
+  "productPageSettings": {
+    "globalTabsEnabled": true,
+    "globalTabs": [
+      {
+        "title": "Material / Paper Stock We Use",
+        "source": "template",
+        "template": "specifications",
+        "content": ""
+      }
+    ],
+    "globalFaqsEnabled": true,
+    "globalFaqs": [],
+    "globalExtraContentEnabled": false,
+    "globalExtraContent": "",
+    "extraContentAlign": "right",
+    "extraContentAnimationMs": 1500,
+    "extraContentCollapsedHeight": 400,
+    "relatedCarouselSlides": {
+      "base": 2,
+      "sm": 3,
+      "md": 3,
+      "lg": 4,
+      "xl": 4
+    },
+    "relatedCarouselAutoplay": true,
+    "relatedCarouselAutoplayMs": 5000
+  },
+  "categoryPageSettings": {
+    "sidebarEnabled": true,
+    "sidebarPosition": "left",
+    "productGridColumns": {
+      "base": 1,
+      "sm": 2,
+      "md": 2,
+      "lg": 3,
+      "xl": 3,
+      "2xl": 3
+    },
+    "paginationEnabled": true,
+    "productsPerPage": 8,
+    "paginationStyle": "compact"
+  },
+  "siteSettings": {
+    "favicon": "/uploads/products/site/1787303767879-t4led2.png",
+    "logo": "/uploads/products/site/1787303805137-jsw0tt.png",
+    "logoInHeader": true,
+    "logoInFooter": true,
+    "logoHeaderHeight": 100,
+    "logoFooterHeight": 100,
+    "separateFooterLogo": true,
+    "footerLogo": "/uploads/products/site/1787419033092-v0039n.png",
+    "colors": {
+      "primary": "#12315a",
+      "accent": "#f5c518",
+      "onPrimary": "#ffffff",
+      "onAccent": "#12315a",
+      "background": "#ffffff",
+      "surface": "#ffffff",
+      "text": "#12315a",
+      "muted": "#5a7394",
+      "border": "#12315a",
+      "headerBar": "#12315a",
+      "headerBarText": "#ffffff",
+      "header": "#ffffff",
+      "headerText": "#12315a",
+      "footer": "#12315a",
+      "footerText": "#ffffff",
+      "footerMuted": "#c5d0dc",
+      "footerLink": "#f5c518",
+      "hero": "#12315a",
+      "heroText": "#ffffff",
+      "button": "#f5c518",
+      "buttonText": "#12315a",
+      "link": "#12315a",
+      "focus": "#12315a"
+    },
+    "promoBar": {
+      "autoplay": true,
+      "autoplayMs": 5000,
+      "slides": [
+        {
+          "id": "labour-day",
+          "text": "Labour Day discount — up to 30% off"
+        },
+        {
+          "id": "promo-mt4m0acu-agavdd",
+          "text": "Independance Day discount — up to 30% off"
+        }
+      ]
+    },
+    "shopByIndustry": {
+      "title": "Shop by industry",
+      "subtitle": "Custom and graphic packaging solutions for retail, food, cosmetics, and gifts.",
+      "categorySlugs": [
+        "boxes-with-lids-industries",
+        "apparel-boxes-2",
+        "retail-packaging",
+        "gift-boxes",
+        "food-packaging",
+        "cosmetic-boxes"
+      ]
+    },
+    "hero": {
+      "autoplay": true,
+      "autoplayMs": 5000,
+      "transitionMs": 500,
+      "pauseOnHover": true,
+      "showArrows": true,
+      "arrowsOnHover": true,
+      "animateHeading": true,
+      "height": 500,
+      "paddingTop": 40,
+      "paddingBottom": 40,
+      "background": "#ffffff",
+      "backgroundImage": "/uploads/products/hero/1787313837014-z1ge0t.webp",
+      "typography": {
+        "heading": {
+          "fontFamily": "sans",
+          "fontSize": 55
+        },
+        "subheading": {
+          "fontFamily": "sans",
+          "fontSize": 26
+        },
+        "supporting": {
+          "fontFamily": "sans",
+          "fontSize": 18
+        },
+        "button": {
+          "fontFamily": "sans",
+          "fontSize": 17
+        }
+      },
+      "customFonts": [],
+      "slides": [
+        {
+          "id": "christmas",
+          "heading": "Get 75% off on Christmas",
+          "lines": [
+            "Design Your Exceptional Packaging in Any Shape & Style",
+            "Starting From 100 Boxes"
+          ],
+          "image": "/hero/christmas.webp",
+          "alt": "Holiday custom packaging boxes",
+          "buttonLabel": "Get Instant Quote",
+          "buttonHref": "/quote"
+        },
+        {
+          "id": "mylar",
+          "heading": "Custom Printed Mylar Bags & Stand Up Pouches",
+          "lines": [
+            "Design Your Exceptional Zipper Bags Packaging",
+            "Click Below to Get An Estimate!"
+          ],
+          "image": "/hero/mylar.webp",
+          "alt": "Custom printed Mylar bags and stand up pouches",
+          "buttonLabel": "Get Instant Quote",
+          "buttonHref": "/quote"
+        },
+        {
+          "id": "boxes",
+          "heading": "Custom Boxes With Your Branding",
+          "lines": [
+            "Design Your Exceptional Packaging in Any Shape & Style",
+            "Starting From 100 Boxes"
+          ],
+          "image": "/hero/boxes.webp",
+          "alt": "Custom branded packaging boxes",
+          "buttonLabel": "Get Instant Quote",
+          "buttonHref": "/quote"
+        }
+      ]
+    }
+  }
+}

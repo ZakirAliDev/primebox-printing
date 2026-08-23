@@ -1,0 +1,437 @@
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import { revalidatePath } from "next/cache";
+import { deleteCategoryUploads, saveCategoryImage } from "@/lib/category-media";
+import type { Catalog, Category, CategoryPageSettings, Package, ProductAttribute, ProductFaq, ProductPageSettings, ProductTab, RelatedMode, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
+import { layoutToHtml } from "@/lib/template-layout";
+import { DEFAULT_TAB_TEMPLATES, isCategoryParentInvalid, normalizeCategory, normalizeCategoryPageSettings, normalizePackage, normalizeProductPageSettings, normalizeSiteSettings, normalizeTabTemplate, slugify } from "@/lib/catalog";
+import { deleteProductUploads } from "@/lib/product-media";
+
+const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
+
+export async function readCatalog(): Promise<Catalog> {
+  const raw = await fs.readFile(catalogPath, "utf8");
+  const data = JSON.parse(raw) as Partial<Catalog>;
+  return {
+    categories: (data.categories ?? []).map((item) => normalizeCategory(item as Category)),
+    packages: (data.packages ?? []).map((item) => normalizePackage(item as Package)),
+    tabTemplates: (data.tabTemplates ?? DEFAULT_TAB_TEMPLATES).map(normalizeTabTemplate),
+    tags: data.tags ?? [],
+    attributes: data.attributes ?? [],
+    reviews: data.reviews ?? [],
+    productPageSettings: normalizeProductPageSettings(data.productPageSettings),
+    categoryPageSettings: normalizeCategoryPageSettings(data.categoryPageSettings),
+    siteSettings: normalizeSiteSettings(data.siteSettings),
+  };
+}
+
+async function writeCatalog(catalog: Catalog) {
+  await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
+  revalidatePath("/", "layout");
+}
+
+export async function upsertCategory(input: {
+  originalSlug?: string;
+  slug?: string;
+  name: string;
+  summary: string;
+  description: string;
+  cardSupportingText: string;
+  image: string;
+  parentSlug: string;
+}) {
+  const catalog = await readCatalog();
+  const slug = slugify(input.slug || input.name);
+  if (!slug) {
+    throw new Error("Category name is required.");
+  }
+  const parentSlug = input.parentSlug.trim();
+  if (isCategoryParentInvalid(catalog.categories, slug, parentSlug)) {
+    throw new Error("Choose a valid parent category.");
+  }
+  const next: Category = normalizeCategory({
+    slug,
+    name: input.name.trim(),
+    summary: input.summary.trim(),
+    description: input.description.trim(),
+    cardSupportingText: input.cardSupportingText.trim(),
+    image: input.image.trim(),
+    parentSlug,
+  });
+  const from = input.originalSlug || slug;
+  catalog.categories = catalog.categories.filter((item) => item.slug !== from && item.slug !== slug);
+  if (from !== slug) {
+    catalog.packages = catalog.packages.map((item) => ({
+      ...item,
+      categorySlugs: item.categorySlugs.map((value) => (value === from ? slug : value)),
+    }));
+    catalog.categories = catalog.categories.map((item) => ({
+      ...item,
+      parentSlug: item.parentSlug === from ? slug : item.parentSlug,
+    }));
+  }
+  catalog.categories.push(next);
+  await writeCatalog(catalog);
+  return next;
+}
+
+export async function setCategoryProducts(categorySlug: string, productSlugs: string[]) {
+  const catalog = await readCatalog();
+  const selected = new Set(productSlugs.filter(Boolean));
+  catalog.packages = catalog.packages.map((item) => {
+    const inCategory = item.categorySlugs.includes(categorySlug);
+    const shouldBe = selected.has(item.slug);
+    if (inCategory === shouldBe) {
+      return item;
+    }
+    if (shouldBe) {
+      return { ...item, categorySlugs: [...item.categorySlugs, categorySlug] };
+    }
+    return { ...item, categorySlugs: item.categorySlugs.filter((value) => value !== categorySlug) };
+  });
+  await writeCatalog(catalog);
+}
+
+export async function deleteCategory(slug: string) {
+  const catalog = await readCatalog();
+  const removed = catalog.categories.find((item) => item.slug === slug);
+  const parentSlug = removed?.parentSlug ?? "";
+  catalog.categories = catalog.categories
+    .filter((item) => item.slug !== slug)
+    .map((item) => ({
+      ...item,
+      parentSlug: item.parentSlug === slug ? parentSlug : item.parentSlug,
+    }));
+  catalog.packages = catalog.packages.map((item) => ({
+    ...item,
+    categorySlugs: item.categorySlugs.filter((value) => value !== slug),
+  }));
+  await writeCatalog(catalog);
+  await deleteCategoryUploads(slug);
+}
+
+export async function upsertPackage(input: {
+  originalSlug?: string;
+  slug?: string;
+  name: string;
+  summary: string;
+  body: string;
+  image: string;
+  gallery: string[];
+  categorySlugs: string[];
+  relatedMode: RelatedMode;
+  relatedSlugs: string[];
+  faqs: ProductFaq[];
+  faqsEnabled: boolean;
+  faqsOverride: boolean;
+  extraContent: string;
+  extraContentOverride: boolean;
+  tabs: ProductTab[];
+  tabsOverride: boolean;
+}) {
+  const catalog = await readCatalog();
+  const slug = slugify(input.slug || input.name);
+  if (!slug) {
+    throw new Error("Product name is required.");
+  }
+  const next: Package = {
+    slug,
+    name: input.name.trim(),
+    summary: input.summary.trim(),
+    body: input.body.trim(),
+    image: input.image,
+    gallery: input.gallery,
+    categorySlugs: input.categorySlugs,
+    relatedMode: input.relatedMode === "manual" ? "manual" : "category",
+    relatedSlugs: input.relatedSlugs,
+    faqs: input.faqs,
+    faqsEnabled: input.faqsEnabled,
+    faqsOverride: input.faqsOverride,
+    extraContent: input.extraContent,
+    extraContentOverride: input.extraContentOverride,
+    tabs: input.tabs,
+    tabsOverride: input.tabsOverride,
+  };
+  const from = input.originalSlug || slug;
+  catalog.packages = catalog.packages
+    .filter((item) => item.slug !== from && item.slug !== slug)
+    .map((item) => ({
+      ...item,
+      relatedSlugs: item.relatedSlugs.map((value) => (value === from ? slug : value)),
+    }));
+  catalog.packages.push(next);
+  await writeCatalog(catalog);
+  return next;
+}
+
+export async function patchPackage(
+  slug: string,
+  patch: Partial<Pick<Package, "faqsEnabled" | "faqsOverride" | "tabsOverride" | "extraContentOverride">>,
+) {
+  const catalog = await readCatalog();
+  const current = catalog.packages.find((item) => item.slug === slug);
+  if (!current) {
+    throw new Error("Product not found.");
+  }
+  catalog.packages = catalog.packages.map((item) => (item.slug === slug ? { ...item, ...patch } : item));
+  await writeCatalog(catalog);
+}
+
+export async function setGlobalTabsEnabled(enabled: boolean) {
+  const catalog = await readCatalog();
+  catalog.productPageSettings = {
+    ...catalog.productPageSettings,
+    globalTabsEnabled: enabled,
+  };
+  await writeCatalog(catalog);
+}
+
+export async function setGlobalFaqsEnabled(enabled: boolean) {
+  const catalog = await readCatalog();
+  catalog.productPageSettings = {
+    ...catalog.productPageSettings,
+    globalFaqsEnabled: enabled,
+  };
+  await writeCatalog(catalog);
+}
+
+export async function setGlobalExtraContentEnabled(enabled: boolean) {
+  const catalog = await readCatalog();
+  catalog.productPageSettings = {
+    ...catalog.productPageSettings,
+    globalExtraContentEnabled: enabled,
+  };
+  await writeCatalog(catalog);
+}
+
+export async function upsertProductPageSettings(input: ProductPageSettings) {
+  const catalog = await readCatalog();
+  catalog.productPageSettings = normalizeProductPageSettings(input);
+  await writeCatalog(catalog);
+  return catalog.productPageSettings;
+}
+
+export async function upsertCategoryPageSettings(input: CategoryPageSettings) {
+  const catalog = await readCatalog();
+  catalog.categoryPageSettings = normalizeCategoryPageSettings(input);
+  await writeCatalog(catalog);
+  return catalog.categoryPageSettings;
+}
+
+export async function patchSiteSettings(patch: Partial<SiteSettings>) {
+  const catalog = await readCatalog();
+  catalog.siteSettings = normalizeSiteSettings({ ...catalog.siteSettings, ...patch });
+  await writeCatalog(catalog);
+  return catalog.siteSettings;
+}
+
+export async function deletePackage(slug: string) {
+  const catalog = await readCatalog();
+  catalog.packages = catalog.packages
+    .filter((item) => item.slug !== slug)
+    .map((item) => ({
+      ...item,
+      relatedSlugs: item.relatedSlugs.filter((value) => value !== slug),
+    }));
+  await writeCatalog(catalog);
+  await deleteProductUploads(slug);
+}
+
+export async function deletePackages(slugs: string[]) {
+  const remove = new Set(slugs.filter(Boolean));
+  if (remove.size === 0) {
+    return;
+  }
+  const catalog = await readCatalog();
+  catalog.packages = catalog.packages
+    .filter((item) => !remove.has(item.slug))
+    .map((item) => ({
+      ...item,
+      relatedSlugs: item.relatedSlugs.filter((value) => !remove.has(value)),
+    }));
+  await writeCatalog(catalog);
+  await Promise.all([...remove].map((slug) => deleteProductUploads(slug)));
+}
+
+export async function deleteCategories(slugs: string[]) {
+  const remove = new Set(slugs.filter(Boolean));
+  if (remove.size === 0) {
+    return;
+  }
+  const catalog = await readCatalog();
+  let categories = catalog.categories;
+  for (const slug of remove) {
+    const removed = categories.find((item) => item.slug === slug);
+    const parentSlug = removed?.parentSlug ?? "";
+    categories = categories
+      .filter((item) => item.slug !== slug)
+      .map((item) => ({
+        ...item,
+        parentSlug: item.parentSlug === slug ? parentSlug : item.parentSlug,
+      }));
+  }
+  catalog.categories = categories;
+  catalog.packages = catalog.packages.map((item) => ({
+    ...item,
+    categorySlugs: item.categorySlugs.filter((value) => !remove.has(value)),
+  }));
+  await writeCatalog(catalog);
+  await Promise.all([...remove].map((slug) => deleteCategoryUploads(slug)));
+}
+
+function replaceBySlug<T extends { slug: string }>(items: T[], from: string, next: T) {
+  return [...items.filter((item) => item.slug !== from && item.slug !== next.slug), next];
+}
+
+export async function upsertTag(input: {
+  originalSlug?: string;
+  slug?: string;
+  name: string;
+  summary: string;
+}) {
+  const catalog = await readCatalog();
+  const slug = slugify(input.slug || input.name);
+  if (!slug) {
+    throw new Error("Tag name is required.");
+  }
+  const next: Tag = { slug, name: input.name.trim(), summary: input.summary.trim() };
+  const from = input.originalSlug || slug;
+  catalog.tags = replaceBySlug(catalog.tags, from, next);
+  await writeCatalog(catalog);
+  return next;
+}
+
+export async function deleteTag(slug: string) {
+  const catalog = await readCatalog();
+  catalog.tags = catalog.tags.filter((item) => item.slug !== slug);
+  await writeCatalog(catalog);
+}
+
+export async function deleteTags(slugs: string[]) {
+  const remove = new Set(slugs.filter(Boolean));
+  if (remove.size === 0) {
+    return;
+  }
+  const catalog = await readCatalog();
+  catalog.tags = catalog.tags.filter((item) => !remove.has(item.slug));
+  await writeCatalog(catalog);
+}
+
+function retargetTemplateTabs(packages: Package[], from: string, to: string) {
+  return packages.map((item) => ({
+    ...item,
+    tabs: item.tabs.map((tab) =>
+      tab.source === "template" && tab.template === from ? { ...tab, template: to } : tab,
+    ),
+  }));
+}
+
+function detachTemplateTabs(packages: Package[], templates: TabTemplate[], slugs: Set<string>) {
+  const contents = new Map(
+    templates.filter((item) => slugs.has(item.slug)).map((item) => [item.slug, layoutToHtml(item.layout)]),
+  );
+  return packages.map((item) => ({
+    ...item,
+    tabs: item.tabs.map((tab) => {
+      if (tab.source !== "template" || !tab.template || !slugs.has(tab.template)) {
+        return tab;
+      }
+      return {
+        ...tab,
+        source: "custom" as const,
+        template: undefined,
+        content: tab.content || contents.get(tab.template) || "",
+      };
+    }),
+  }));
+}
+
+export async function upsertTabTemplate(input: {
+  originalSlug?: string;
+  slug?: string;
+  name: string;
+  layout: TabTemplate["layout"];
+}) {
+  const catalog = await readCatalog();
+  const slug = slugify(input.slug || input.name);
+  if (!slug) {
+    throw new Error("Template name is required.");
+  }
+  const next: TabTemplate = { slug, name: input.name.trim(), layout: input.layout };
+  const from = input.originalSlug || slug;
+  catalog.tabTemplates = replaceBySlug(catalog.tabTemplates, from, next);
+  if (from !== slug) {
+    catalog.packages = retargetTemplateTabs(catalog.packages, from, slug);
+  }
+  await writeCatalog(catalog);
+  return next;
+}
+
+export async function deleteTabTemplate(slug: string) {
+  await deleteTabTemplates([slug]);
+}
+
+export async function deleteTabTemplates(slugs: string[]) {
+  const remove = new Set(slugs.filter(Boolean));
+  if (remove.size === 0) {
+    return;
+  }
+  const catalog = await readCatalog();
+  catalog.packages = detachTemplateTabs(catalog.packages, catalog.tabTemplates, remove);
+  catalog.tabTemplates = catalog.tabTemplates.filter((item) => !remove.has(item.slug));
+  await writeCatalog(catalog);
+}
+
+export async function upsertAttribute(input: {
+  originalSlug?: string;
+  slug?: string;
+  name: string;
+  terms: string[];
+}) {
+  const catalog = await readCatalog();
+  const slug = slugify(input.slug || input.name);
+  if (!slug) {
+    throw new Error("Attribute name is required.");
+  }
+  const next: ProductAttribute = {
+    slug,
+    name: input.name.trim(),
+    terms: input.terms.map((term) => term.trim()).filter(Boolean),
+  };
+  const from = input.originalSlug || slug;
+  catalog.attributes = replaceBySlug(catalog.attributes, from, next);
+  await writeCatalog(catalog);
+  return next;
+}
+
+export async function deleteAttribute(slug: string) {
+  const catalog = await readCatalog();
+  catalog.attributes = catalog.attributes.filter((item) => item.slug !== slug);
+  await writeCatalog(catalog);
+}
+
+export async function deleteAttributes(slugs: string[]) {
+  const remove = new Set(slugs.filter(Boolean));
+  if (remove.size === 0) {
+    return;
+  }
+  const catalog = await readCatalog();
+  catalog.attributes = catalog.attributes.filter((item) => !remove.has(item.slug));
+  await writeCatalog(catalog);
+}
+
+export async function deleteReview(id: string) {
+  const catalog = await readCatalog();
+  catalog.reviews = catalog.reviews.filter((item) => item.id !== id);
+  await writeCatalog(catalog);
+}
+
+export async function deleteReviews(ids: string[]) {
+  const remove = new Set(ids.filter(Boolean));
+  if (remove.size === 0) {
+    return;
+  }
+  const catalog = await readCatalog();
+  catalog.reviews = catalog.reviews.filter((item) => !remove.has(item.id));
+  await writeCatalog(catalog);
+}
