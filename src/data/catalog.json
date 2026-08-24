@@ -1914,6 +1914,29 @@
         }
       ]
     },
+    "trustBar": {
+      "stills": [
+        {
+          "id": "trust-still-1",
+          "image": "",
+          "href": "",
+          "alt": ""
+        },
+        {
+          "id": "trust-still-2",
+          "image": "",
+          "href": "",
+          "alt": ""
+        }
+      ],
+      "carousel": {
+        "slides": [],
+        "autoplay": true,
+        "autoplayMs": 5000,
+        "slidesToShowDesktop": 7,
+        "slidesToShowMobile": 3
+      }
+    },
     "shopByIndustry": {
       "title": "Shop by industry",
       "subtitle": "Custom and graphic packaging solutions for retail, food, cosmetics, and gifts.",

@@ -6,6 +6,7 @@ import { ColorSchemeEditor } from "@/components/admin/ColorSchemeEditor";
 import { HeroCarouselEditor } from "@/components/admin/HeroCarouselEditor";
 import { PromoBarEditor } from "@/components/admin/PromoBarEditor";
 import { ShopByIndustryEditor } from "@/components/admin/ShopByIndustryEditor";
+import { TrustBarEditor } from "@/components/admin/TrustBarEditor";
 import { AdminToast } from "@/components/admin/AdminNotice";
 import { adminBox, adminBoxHead, adminGhost, adminMuted } from "@/components/admin/ui";
 import { LOGO_HEIGHT_MAX, LOGO_HEIGHT_MIN, type Category, type SiteSettings } from "@/lib/catalog";
@@ -21,12 +22,19 @@ import {
   type ShopByIndustrySettings,
 } from "@/lib/shop-by-industry";
 import {
+  DEFAULT_TRUST_BAR_SETTINGS,
+  normalizeTrustBarSettings,
+  type TrustBarSettings,
+} from "@/lib/trust-bar";
+import {
   DEFAULT_COLOR_SCHEME,
   applyLinkedColor,
   normalizeHexColor,
   resolveColorScheme,
   type ColorScheme,
 } from "@/lib/color-scheme";
+
+type SettingsTab = "global" | "home";
 
 function LogoPlacement({
   label,
@@ -141,6 +149,10 @@ export function SiteSettingsForm({
   const [shopByIndustry, setShopByIndustry] = useState<ShopByIndustrySettings>(() =>
     normalizeShopByIndustrySettings(settings.shopByIndustry),
   );
+  const [trustBar, setTrustBar] = useState<TrustBarSettings>(() =>
+    normalizeTrustBarSettings(settings.trustBar),
+  );
+  const [tab, setTab] = useState<SettingsTab>("global");
   const [busy, setBusy] = useState<
     | "favicon"
     | "logo"
@@ -151,6 +163,7 @@ export function SiteSettingsForm({
     | "hero"
     | "promoBar"
     | "shopByIndustry"
+    | "trustBar"
     | ""
   >("");
   const [notice, setNotice] = useState<{ id: number; text: string } | null>(null);
@@ -308,6 +321,65 @@ export function SiteSettingsForm({
     void save({ shopByIndustry: next }, "shopByIndustry", () => setShopByIndustry(previous));
   };
 
+  const saveTrustBar = () => {
+    const next = normalizeTrustBarSettings(trustBar);
+    setTrustBar(next);
+    void save({ trustBar: next }, "trustBar", () =>
+      setTrustBar(normalizeTrustBarSettings(settings.trustBar)),
+    );
+  };
+
+  const resetTrustBar = () => {
+    const previous = trustBar;
+    const next = normalizeTrustBarSettings(DEFAULT_TRUST_BAR_SETTINGS);
+    setTrustBar(next);
+    void save({ trustBar: next }, "trustBar", () => setTrustBar(previous));
+  };
+
+  const uploadTrustBarImage = async (
+    file: File,
+    target: { kind: "still"; index: 0 | 1 } | { kind: "slide"; index: number },
+  ) => {
+    if (busy) {
+      return;
+    }
+    setBusy("trustBar");
+    try {
+      const data = new FormData();
+      data.set("slug", "trust-bar");
+      data.set("file", file);
+      const response = await fetch("/admin/api/media", { method: "POST", body: data });
+      const payload = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !payload.url) {
+        throw new Error(payload.error || "Upload failed.");
+      }
+      setTrustBar((current) => {
+        if (target.kind === "still") {
+          const stills: TrustBarSettings["stills"] = [...current.stills];
+          stills[target.index] = { ...stills[target.index], image: payload.url as string };
+          return { ...current, stills };
+        }
+        return {
+          ...current,
+          carousel: {
+            ...current.carousel,
+            slides: current.carousel.slides.map((slide, slideIndex) =>
+              slideIndex === target.index ? { ...slide, image: payload.url as string } : slide,
+            ),
+          },
+        };
+      });
+      setNotice({ id: Date.now(), text: "Image uploaded. Save to apply." });
+    } catch (error) {
+      setNotice({
+        id: Date.now(),
+        text: error instanceof Error ? error.message : "Upload failed.",
+      });
+    } finally {
+      setBusy("");
+    }
+  };
+
   const uploadHeroImage = async (file: File, target: number | "container") => {
     if (busy) {
       return;
@@ -354,9 +426,35 @@ export function SiteSettingsForm({
     <div className="space-y-4">
       <AdminToast notice={notice} />
 
-      <div className="flex items-start gap-5">
-        <div className="min-w-0 flex-1 space-y-4">
-          <div className="grid items-start gap-4 lg:grid-cols-2">
+      <div className="flex flex-wrap gap-2 border-b border-navy/10 pb-3">
+        {(
+          [
+            { id: "global", label: "Global settings" },
+            { id: "home", label: "Home page settings" },
+          ] as const
+        ).map((item) => {
+          const active = tab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                active
+                  ? "bg-navy text-white"
+                  : "bg-navy/[0.05] text-navy hover:bg-navy/10"
+              }`}
+              aria-pressed={active}
+              onClick={() => setTab(item.id)}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {tab === "global" ? (
+        <div className="flex items-start gap-5">
+          <div className="min-w-0 flex-1 space-y-4">
             <PromoBarEditor
               promoBar={promoBar}
               busy={busy === "promoBar"}
@@ -364,28 +462,10 @@ export function SiteSettingsForm({
               onSave={savePromoBar}
               onReset={resetPromoBar}
             />
-
-            <ShopByIndustryEditor
-              settings={shopByIndustry}
-              categories={categories}
-              busy={busy === "shopByIndustry"}
-              onChange={setShopByIndustry}
-              onSave={saveShopByIndustry}
-              onReset={resetShopByIndustry}
-            />
           </div>
 
-          <HeroCarouselEditor
-            hero={hero}
-            busy={busy === "hero"}
-            onChange={setHero}
-            onSave={saveHero}
-            onReset={resetHero}
-            onUpload={uploadHeroImage}
-          />
-        </div>
+          <aside className="sticky top-6 z-10 w-[300px] shrink-0 space-y-4 self-start">
 
-        <aside className="sticky top-6 z-10 w-[300px] shrink-0 space-y-4 self-start">
           <div className={adminBox}>
             <h2 className={adminBoxHead}>Brand identity</h2>
             <div className="space-y-5 p-3">
@@ -610,8 +690,40 @@ export function SiteSettingsForm({
             onSave={saveColors}
             onReset={resetColors}
           />
-        </aside>
-      </div>
+        
+          </aside>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <HeroCarouselEditor
+            hero={hero}
+            busy={busy === "hero"}
+            onChange={setHero}
+            onSave={saveHero}
+            onReset={resetHero}
+            onUpload={uploadHeroImage}
+          />
+
+          <TrustBarEditor
+            trustBar={trustBar}
+            busy={busy === "trustBar"}
+            onChange={setTrustBar}
+            onSave={saveTrustBar}
+            onReset={resetTrustBar}
+            onUploadStill={(index, file) => void uploadTrustBarImage(file, { kind: "still", index })}
+            onUploadSlide={(index, file) => void uploadTrustBarImage(file, { kind: "slide", index })}
+          />
+
+          <ShopByIndustryEditor
+            settings={shopByIndustry}
+            categories={categories}
+            busy={busy === "shopByIndustry"}
+            onChange={setShopByIndustry}
+            onSave={saveShopByIndustry}
+            onReset={resetShopByIndustry}
+          />
+        </div>
+      )}
     </div>
   );
 }

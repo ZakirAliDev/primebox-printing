@@ -12,6 +12,11 @@ import {
   normalizeShopByIndustrySettings,
   type ShopByIndustrySettings,
 } from "@/lib/shop-by-industry";
+import {
+  DEFAULT_TRUST_BAR_SETTINGS,
+  normalizeTrustBarSettings,
+  type TrustBarSettings,
+} from "@/lib/trust-bar";
 import { defaultAppearance, htmlToLayout, normalizeLayout, type TemplateSection } from "@/lib/template-layout";
 
 export type Category = {
@@ -81,6 +86,7 @@ export type SiteSettings = {
   footerLogo: string;
   colors: ColorScheme;
   promoBar: PromoBarSettings;
+  trustBar: TrustBarSettings;
   shopByIndustry: ShopByIndustrySettings;
   hero: HeroSettings;
 };
@@ -405,6 +411,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   footerLogo: "",
   colors: normalizeColorScheme(),
   promoBar: DEFAULT_PROMO_BAR_SETTINGS,
+  trustBar: DEFAULT_TRUST_BAR_SETTINGS,
   shopByIndustry: DEFAULT_SHOP_BY_INDUSTRY_SETTINGS,
   hero: DEFAULT_HERO_SETTINGS,
 };
@@ -421,6 +428,7 @@ export function normalizeSiteSettings(input?: Partial<SiteSettings> | null): Sit
     footerLogo: typeof input?.footerLogo === "string" ? input.footerLogo.trim() : "",
     colors: normalizeColorScheme(input?.colors),
     promoBar: normalizePromoBarSettings(input?.promoBar),
+    trustBar: normalizeTrustBarSettings(input?.trustBar),
     shopByIndustry: normalizeShopByIndustrySettings(input?.shopByIndustry),
     hero: normalizeHeroSettings(input?.hero),
   };
