@@ -2,10 +2,11 @@ import Link from "next/link";
 import { logoutAction } from "@/app/admin/actions";
 import { AdminMenu } from "@/components/admin/AdminMenu";
 import { AdminPageBar, AdminPageBarProvider } from "@/components/admin/AdminPageBar";
+import { isDatabaseConfigured } from "@/lib/db";
 import { SITE_NAME } from "@/lib/site";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const storageMode = process.env.DATABASE_URL?.trim() ? "database" : "file";
+  const storageMode = isDatabaseConfigured() ? "database" : "file";
   const onVercelWithoutDb = Boolean(process.env.VERCEL) && storageMode === "file";
 
   return (

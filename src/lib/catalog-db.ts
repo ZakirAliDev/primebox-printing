@@ -11,7 +11,7 @@ import {
   normalizeSiteSettings,
   normalizeTabTemplate,
 } from "@/lib/catalog";
-import { getPrisma, isDatabaseConfigured } from "@/lib/db";
+import { ensureDatabaseSchema, getPrisma, isDatabaseConfigured } from "@/lib/db";
 
 const CATALOG_DOC_ID = 1;
 const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
@@ -45,6 +45,7 @@ async function loadCatalogFromFile(): Promise<{ catalog: Catalog; version: strin
 }
 
 async function loadCatalogFromDatabase(): Promise<{ catalog: Catalog; version: string }> {
+  await ensureDatabaseSchema();
   const prisma = getPrisma();
   const row = await prisma.catalogDocument.findUnique({ where: { id: CATALOG_DOC_ID } });
   if (!row) {
@@ -70,6 +71,7 @@ export async function loadCatalogDocument(): Promise<Catalog> {
 
   if (useDb) {
     try {
+      await ensureDatabaseSchema();
       const prisma = getPrisma();
       if (catalogMemo?.version.startsWith("db:")) {
         const meta = await prisma.catalogDocument.findUnique({
@@ -113,6 +115,7 @@ export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
     return;
   }
 
+  await ensureDatabaseSchema();
   const prisma = getPrisma();
   await prisma.catalogDocument.upsert({
     where: { id: CATALOG_DOC_ID },
@@ -126,6 +129,7 @@ export async function seedCatalogFromJsonFile(force = false) {
   if (!isDatabaseConfigured()) {
     throw new Error("DATABASE_URL is required to seed the database.");
   }
+  await ensureDatabaseSchema();
   const prisma = getPrisma();
   const existing = await prisma.catalogDocument.findUnique({ where: { id: CATALOG_DOC_ID } });
   if (existing && !force) {

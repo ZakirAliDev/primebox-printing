@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 import type { Category, Package } from "@/lib/catalog";
-import { getPrisma, isDatabaseConfigured } from "@/lib/db";
+import { ensureDatabaseSchema, getPrisma, isDatabaseConfigured } from "@/lib/db";
 
 export type PackagePreview = {
   kind: "package";
@@ -42,6 +42,7 @@ function newToken() {
 
 async function writePreviewRecord(record: AdminPreview) {
   if (isDatabaseConfigured()) {
+    await ensureDatabaseSchema();
     const prisma = getPrisma();
     await prisma.adminPreviewRecord.upsert({
       where: { token: record.token },
@@ -102,6 +103,11 @@ export async function readPreview(token: string): Promise<AdminPreview | null> {
   }
 
   if (isDatabaseConfigured()) {
+    try {
+      await ensureDatabaseSchema();
+    } catch {
+      return null;
+    }
     const prisma = getPrisma();
     const row = await prisma.adminPreviewRecord.findUnique({ where: { token: clean } });
     if (!row) {
