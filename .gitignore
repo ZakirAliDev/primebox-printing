@@ -37,9 +37,7 @@ yarn-error.log*
 !.env.example
 .dev.vars
 
-# uploads
-/public/uploads/products/**
-!/public/uploads/products/.gitkeep
+# TinyMCE is copied at postinstall; keep out of git
 /public/tinymce
 
 # cloudflare
