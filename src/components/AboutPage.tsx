@@ -31,16 +31,16 @@ function GoldRule({ className = "" }: { className?: string }) {
 export function AboutPage({ sent, error }: { sent?: boolean; error?: boolean }) {
   return (
     <>
-      <section className="about-grain bg-navy text-white">
+      <section className="about-grain bg-navy text-white [&_a]:text-white [&_h1]:text-white [&_p]:text-white">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12 md:py-16">
           <p className="text-sm text-white/70">
-            <Link href="/" className="hover:text-button">
+            <Link href="/" className="text-white/70 hover:text-button">
               Home
             </Link>
             <span className="mx-2 text-button">/</span>
-            About Us
+            <span className="text-white">About Us</span>
           </p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">About Us</h1>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">About Us</h1>
           <GoldRule />
         </div>
       </section>
@@ -48,7 +48,7 @@ export function AboutPage({ sent, error }: { sent?: boolean; error?: boolean }) 
       <section className="bg-navy text-white">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">About Prime Box Printing</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">About Prime Box Printing</h2>
             <p className="mt-5 text-base leading-relaxed text-white/85 md:text-[1.05rem] md:leading-7">{ABOUT_INTRO}</p>
             <Link
               href="/quote"
@@ -127,7 +127,7 @@ export function AboutPage({ sent, error }: { sent?: boolean; error?: boolean }) 
       <section className="bg-navy text-white">
         <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl md:text-[2rem]">{ABOUT_BRANDS.title}</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-[2rem]">{ABOUT_BRANDS.title}</h2>
             <p className="mt-4 text-sm leading-relaxed text-white/85 sm:text-base">{ABOUT_BRANDS.body}</p>
             <Link href={ABOUT_BRANDS.href} className="mt-6 inline-flex font-semibold text-button hover:underline">
               {ABOUT_BRANDS.cta}
@@ -267,7 +267,7 @@ export function AboutPage({ sent, error }: { sent?: boolean; error?: boolean }) 
         />
         <div className="absolute inset-0 bg-navy/80" />
         <div className="relative mx-auto max-w-3xl px-4 py-20 text-center text-white md:py-28">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{ABOUT_JOIN.title}</h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{ABOUT_JOIN.title}</h2>
           <p className="mt-5 text-base leading-relaxed text-white/90">{ABOUT_JOIN.body}</p>
           <Link
             href="/quote"

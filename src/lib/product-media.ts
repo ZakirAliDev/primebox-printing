@@ -1,5 +1,6 @@
-import { promises as fs } from "node:fs";
 import path from "node:path";
+import { promises as fs } from "node:fs";
+import { storeUploadBytes, storeUploadFile, useBlobStorage } from "@/lib/media-storage";
 
 const ALLOWED_TYPES = new Map([
   ["image/jpeg", "jpg"],
@@ -38,6 +39,15 @@ function extensionFor(file: File) {
   return ALLOWED_EXTENSIONS.get(name.slice(dot + 1));
 }
 
+function extensionFromName(name: string) {
+  const lower = name.toLowerCase().split("?")[0];
+  const dot = lower.lastIndexOf(".");
+  if (dot === -1) {
+    return undefined;
+  }
+  return ALLOWED_EXTENSIONS.get(lower.slice(dot + 1));
+}
+
 export async function saveProductImage(slug: string, file: File) {
   if (!file.size) {
     return "";
@@ -49,11 +59,14 @@ export async function saveProductImage(slug: string, file: File) {
   if (file.size > MAX_BYTES) {
     throw new Error("Each image must be 5MB or smaller.");
   }
-  const dir = uploadDir(slug);
-  await fs.mkdir(dir, { recursive: true });
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  await fs.writeFile(path.join(dir, filename), Buffer.from(await file.arrayBuffer()));
-  return `/uploads/products/${slug}/${filename}`;
+  const pathname = `uploads/products/${slug}/${filename}`;
+  return storeUploadFile({
+    pathname,
+    file,
+    localAbsolutePath: path.join(uploadDir(slug), filename),
+    localPublicUrl: `/${pathname}`,
+  });
 }
 
 export async function saveProductImageBytes(slug: string, bytes: Uint8Array, filename: string) {
@@ -64,20 +77,17 @@ export async function saveProductImageBytes(slug: string, bytes: Uint8Array, fil
   if (bytes.byteLength > MAX_BYTES) {
     throw new Error("Each image must be 5MB or smaller.");
   }
-  const dir = uploadDir(slug);
-  await fs.mkdir(dir, { recursive: true });
   const saved = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  await fs.writeFile(path.join(dir, saved), bytes);
-  return `/uploads/products/${slug}/${saved}`;
-}
-
-function extensionFromName(name: string) {
-  const lower = name.toLowerCase().split("?")[0];
-  const dot = lower.lastIndexOf(".");
-  if (dot === -1) {
-    return undefined;
-  }
-  return ALLOWED_EXTENSIONS.get(lower.slice(dot + 1));
+  const pathname = `uploads/products/${slug}/${saved}`;
+  const contentType =
+    [...ALLOWED_TYPES.entries()].find(([, value]) => value === ext)?.[0] ?? "application/octet-stream";
+  return storeUploadBytes({
+    pathname,
+    bytes,
+    contentType,
+    localAbsolutePath: path.join(uploadDir(slug), saved),
+    localPublicUrl: `/${pathname}`,
+  });
 }
 
 export async function saveRemoteProductImage(slug: string, url: string) {
@@ -109,5 +119,8 @@ export async function saveProductImages(slug: string, files: File[]) {
 }
 
 export async function deleteProductUploads(slug: string) {
+  if (useBlobStorage()) {
+    return;
+  }
   await fs.rm(uploadDir(slug), { recursive: true, force: true });
 }

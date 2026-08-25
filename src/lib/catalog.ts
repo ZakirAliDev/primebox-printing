@@ -656,11 +656,11 @@ const CATEGORY_GRID_CSS_VARS = [
   ["--category-grid-cols-2xl", "2xl"],
 ] as const;
 
-export function categoryProductGridVars(columns: CategoryGridColumns) {
+export function categoryProductGridVars(columns: CategoryGridColumns): Record<string, string> {
   const normalized = normalizeCategoryGridColumns(columns);
   return Object.fromEntries(
-    CATEGORY_GRID_CSS_VARS.map(([cssVar, key]) => [cssVar, normalized[key]]),
-  ) as Record<(typeof CATEGORY_GRID_CSS_VARS)[number][0], number>;
+    CATEGORY_GRID_CSS_VARS.map(([cssVar, key]) => [cssVar, String(normalized[key])]),
+  );
 }
 
 export function normalizeProductPageSettings(input?: Partial<ProductPageSettings> | null): ProductPageSettings {

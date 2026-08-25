@@ -51,7 +51,7 @@ export function FontFamilyPicker({
   );
   const addName = sanitizeFontFamily(query);
   const showAdd = open && typed && canAddCustomFont(query, extras);
-  const items = showAdd
+  const items: Array<FontOption | { id: string; label: string; group: "custom"; add: true }> = showAdd
     ? [...options, { id: addName, label: `Add “${addName}”`, group: "custom" as const, add: true }]
     : options;
 
@@ -219,8 +219,9 @@ export function FontFamilyPicker({
                   items.map((item, index) => {
                     const heading = item.group !== lastGroup ? GROUP_LABEL[item.group] : null;
                     lastGroup = item.group;
+                    const isAdd = "add" in item && item.add;
                     return (
-                      <li key={`${item.group}-${item.id}-${item.add ? "add" : "opt"}`}>
+                      <li key={`${item.group}-${item.id}-${isAdd ? "add" : "opt"}`}>
                         {heading ? (
                           <p className="px-3 pt-2 pb-1 text-[10px] font-semibold tracking-wide text-navy/45 uppercase">
                             {heading}
@@ -229,11 +230,11 @@ export function FontFamilyPicker({
                         <button
                           type="button"
                           role="option"
-                          aria-selected={item.id === value && !item.add}
+                          aria-selected={item.id === value && !isAdd}
                           className={`flex w-full px-3 py-1.5 text-left text-sm ${
                             index === activeIndex ? "bg-navy/[0.08]" : "hover:bg-navy/[0.04]"
                           }`}
-                          style={item.add ? undefined : { fontFamily: fontFamilyCss(item.id) }}
+                          style={isAdd ? undefined : { fontFamily: fontFamilyCss(item.id) }}
                           onMouseEnter={() => setActiveIndex(index)}
                           onMouseDown={(event) => event.preventDefault()}
                           onClick={() => select(item)}

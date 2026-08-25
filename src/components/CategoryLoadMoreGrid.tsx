@@ -12,7 +12,7 @@ export function CategoryLoadMoreGrid({
 }: {
   items: ProductCardItem[];
   perPage: number;
-  gridStyle: Record<string, number>;
+  gridStyle: Record<string, string>;
 }) {
   const [visibleCount, setVisibleCount] = useState(() => Math.min(perPage, items.length));
   const visibleItems = items.slice(0, visibleCount);

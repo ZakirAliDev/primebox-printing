@@ -1,52 +1,24 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
-import { deleteCategoryUploads, saveCategoryImage } from "@/lib/category-media";
+import { deleteCategoryUploads } from "@/lib/category-media";
 import type { Catalog, Category, CategoryPageSettings, Package, ProductAttribute, ProductFaq, ProductPageSettings, ProductTab, RelatedMode, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
 import { layoutToHtml } from "@/lib/template-layout";
 import { DEFAULT_TAB_TEMPLATES, isCategoryParentInvalid, normalizeCategory, normalizeCategoryPageSettings, normalizePackage, normalizeProductPageSettings, normalizeSiteSettings, normalizeTabTemplate, slugify } from "@/lib/catalog";
+import { loadCatalogDocument, saveCatalogDocument } from "@/lib/catalog-db";
+import { isDatabaseConfigured } from "@/lib/db";
 import { deleteProductUploads, saveRemoteProductImage } from "@/lib/product-media";
 import { resolveCategorySlugs, type ProductCsvRow } from "@/lib/product-csv";
 
-const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
-
-type CatalogMemo = { mtimeMs: number; catalog: Catalog };
-
-let catalogMemo: CatalogMemo | null = null;
-
-function parseCatalog(raw: string): Catalog {
-  const data = JSON.parse(raw) as Partial<Catalog>;
-  return {
-    categories: (data.categories ?? []).map((item) => normalizeCategory(item as Category)),
-    packages: (data.packages ?? []).map((item) => normalizePackage(item as Package)),
-    tabTemplates: (data.tabTemplates ?? DEFAULT_TAB_TEMPLATES).map(normalizeTabTemplate),
-    tags: data.tags ?? [],
-    attributes: data.attributes ?? [],
-    reviews: data.reviews ?? [],
-    productPageSettings: normalizeProductPageSettings(data.productPageSettings),
-    categoryPageSettings: normalizeCategoryPageSettings(data.categoryPageSettings),
-    siteSettings: normalizeSiteSettings(data.siteSettings),
-  };
-}
-
-async function loadCatalogFromDisk(): Promise<Catalog> {
-  const [raw, stats] = await Promise.all([fs.readFile(catalogPath, "utf8"), fs.stat(catalogPath)]);
-  if (catalogMemo && catalogMemo.mtimeMs === stats.mtimeMs) {
-    return catalogMemo.catalog;
-  }
-  const catalog = parseCatalog(raw);
-  catalogMemo = { mtimeMs: stats.mtimeMs, catalog };
-  return catalog;
-}
-
-/** Dedupes within a request; mtime memo avoids re-parsing across requests until writes. */
-export const readCatalog = cache(loadCatalogFromDisk);
+/** Dedupes within a request; catalog-db memos across requests until data changes. */
+export const readCatalog = cache(loadCatalogDocument);
 
 async function writeCatalog(catalog: Catalog) {
-  await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
-  catalogMemo = null;
+  await saveCatalogDocument(catalog);
   revalidatePath("/", "layout");
+}
+
+export function catalogStorageMode(): "database" | "file" {
+  return isDatabaseConfigured() ? "database" : "file";
 }
 
 export async function upsertCategory(input: {

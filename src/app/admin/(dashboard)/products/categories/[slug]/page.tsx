@@ -8,13 +8,13 @@ export const metadata = { title: "Edit category" };
 
 type EditCategoryPageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ created?: string; updated?: string }>;
+  searchParams: Promise<{ created?: string; updated?: string; error?: string }>;
 };
 
 export default async function EditCategoryPage({ params, searchParams }: EditCategoryPageProps) {
   await requireAdmin();
   const { slug } = await params;
-  const { created, updated } = await searchParams;
+  const { created, updated, error } = await searchParams;
   const { categories, packages } = await readCatalog();
   const category = categories.find((item) => item.slug === slug);
   if (!category) {
@@ -22,7 +22,7 @@ export default async function EditCategoryPage({ params, searchParams }: EditCat
   }
   return (
     <div>
-      <AdminNotice created={created} updated={updated} noun="Category" />
+      <AdminNotice created={created} updated={updated} error={error} noun="Category" />
       <CategoryForm category={category} categories={categories} packages={packages} />
     </div>
   );

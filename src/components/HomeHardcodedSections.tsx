@@ -102,13 +102,13 @@ export function HomeStats() {
   return (
     <section className="bg-navy text-white">
       <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <h2 className="mx-auto max-w-3xl text-center text-2xl font-semibold tracking-tight sm:text-3xl md:text-[2rem] md:leading-tight">
+        <h2 className="mx-auto max-w-3xl text-center text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-[2rem] md:leading-tight">
           {HOME_STATS_TITLE}
         </h2>
         <ul className="mt-10 grid grid-cols-2 gap-8 md:grid-cols-4">
           {HOME_STATS.map((stat) => (
             <li key={stat.label} className="text-center">
-              <p className="text-3xl font-semibold sm:text-4xl">{stat.value}</p>
+              <p className="text-3xl font-semibold text-white sm:text-4xl">{stat.value}</p>
               <p className="mt-1 text-sm text-white/80">{stat.label}</p>
             </li>
           ))}

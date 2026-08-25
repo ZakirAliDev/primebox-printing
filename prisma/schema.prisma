@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// Single-row catalog document. One SELECT loads the storefront; admin writes
+/// replace this row and bump updatedAt so the in-memory cache invalidates.
+model CatalogDocument {
+  id        Int      @id @default(1)
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("catalog_document")
+}
+
+/// Short-lived admin Preview drafts. MySQL so Vercel can create/read without a writable FS.
+model AdminPreviewRecord {
+  token     String   @id @db.VarChar(64)
+  data      Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("admin_preview")
+}

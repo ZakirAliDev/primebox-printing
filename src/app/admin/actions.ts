@@ -1,5 +1,6 @@
 "use server";
 
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { loginAdmin, logoutAdmin, requireAdmin } from "@/lib/admin-auth";
 import {
@@ -74,19 +75,30 @@ export async function logoutAction() {
 export async function saveCategoryAction(formData: FormData) {
   await requireAdmin();
   const originalSlug = String(formData.get("originalSlug") ?? "");
-  const draft = await buildCategoryDraftFromForm(formData);
-  const saved = await upsertCategory({
-    originalSlug: originalSlug || undefined,
-    slug: draft.slug,
-    name: draft.name,
-    summary: draft.summary,
-    description: draft.description,
-    cardSupportingText: draft.cardSupportingText,
-    image: draft.image,
-    parentSlug: draft.parentSlug,
-  });
-  await setCategoryProducts(saved.slug, draft.productSlugs);
-  redirect(`/admin/products/categories/${saved.slug}?${originalSlug ? "updated" : "created"}=1`);
+  try {
+    const draft = await buildCategoryDraftFromForm(formData);
+    const saved = await upsertCategory({
+      originalSlug: originalSlug || undefined,
+      slug: draft.slug,
+      name: draft.name,
+      summary: draft.summary,
+      description: draft.description,
+      cardSupportingText: draft.cardSupportingText,
+      image: draft.image,
+      parentSlug: draft.parentSlug,
+    });
+    await setCategoryProducts(saved.slug, draft.productSlugs);
+    redirect(`/admin/products/categories/${saved.slug}?${originalSlug ? "updated" : "created"}=1`);
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    const fallback = originalSlug
+      ? `/admin/products/categories/${originalSlug}`
+      : "/admin/products/categories/new";
+    const message = error instanceof Error ? error.message : "Could not save category.";
+    redirect(`${fallback}?error=${encodeURIComponent(message.slice(0, 220))}`);
+  }
 }
 
 export async function deleteCategoryAction(formData: FormData) {

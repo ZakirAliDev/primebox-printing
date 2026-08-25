@@ -166,20 +166,48 @@ export function siteTypographyCssVars(settings: SiteTypographySettings): Record<
   return next;
 }
 
+/**
+ * Dark / inverse surfaces. Includes attribute matches for opacity utilities
+ * like text-white/85 (compiled as text-white\/85).
+ */
+const INVERSE_TEXT_CONTEXTS = [
+  ".text-white",
+  '[class*="text-white"]',
+  ".text-hero-text",
+  '[class*="text-hero-text"]',
+  ".text-footer-text",
+  '[class*="text-footer-text"]',
+  ".text-footer-muted",
+  '[class*="text-footer-muted"]',
+  ".text-header-bar-text",
+  '[class*="text-header-bar-text"]',
+  ".bg-footer",
+  ".bg-hero",
+  ".bg-navy",
+].join(",");
+
 export function siteTypographyCssRules(): string {
+  // Font/size/line-height stay on the tag. Color uses :where() so utilities
+  // like text-white / text-white/80 can override, and inverse contexts inherit.
   const headingRules = (["h1", "h2", "h3", "h4", "h5", "h6"] as const)
     .map(
       (tag) =>
-        `.site-theme ${tag}{font-family:var(--type-${tag}-ff);font-size:var(--type-${tag}-fs);line-height:var(--type-${tag}-lh);color:var(--type-${tag}-color)}`,
+        `.site-theme ${tag}{font-family:var(--type-${tag}-ff);font-size:var(--type-${tag}-fs);line-height:var(--type-${tag}-lh)}` +
+        `.site-theme :where(${tag}){color:var(--type-${tag}-color)}`,
     )
     .join("");
   const paragraphRule =
-    ".site-theme p{font-family:var(--type-paragraph-ff);font-size:var(--type-paragraph-fs);line-height:var(--type-paragraph-lh);color:var(--type-paragraph-color)}";
+    ".site-theme p{font-family:var(--type-paragraph-ff);font-size:var(--type-paragraph-fs);line-height:var(--type-paragraph-lh)}" +
+    ".site-theme :where(p){color:var(--type-paragraph-color)}";
+  // !important beats the injected type color when a dark section sets light text.
+  const inverseInherit =
+    `.site-theme :is(${INVERSE_TEXT_CONTEXTS}) :is(h1,h2,h3,h4,h5,h6,p),` +
+    `.site-theme :is(${INVERSE_TEXT_CONTEXTS}):is(h1,h2,h3,h4,h5,h6,p){color:inherit!important}`;
   const productCardRules =
     ".site-theme .related-product-card:not(.category-card) h3{font-size:var(--type-product-card-title-fs)}" +
     ".site-theme .related-product-card:not(.category-card) p{font-size:var(--type-product-card-body-fs)}";
   const categoryCardRules =
     ".site-theme .category-card h3{font-size:var(--type-category-card-title-fs)}" +
     ".site-theme .category-card p,.site-theme .category-card .category-card__supporting{font-size:var(--type-category-card-body-fs)}";
-  return `${headingRules}${paragraphRule}${productCardRules}${categoryCardRules}`;
+  return `${headingRules}${paragraphRule}${inverseInherit}${productCardRules}${categoryCardRules}`;
 }

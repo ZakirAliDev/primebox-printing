@@ -1,5 +1,6 @@
-import { promises as fs } from "node:fs";
 import path from "node:path";
+import { promises as fs } from "node:fs";
+import { storeUploadBytes, storeUploadFile, useBlobStorage } from "@/lib/media-storage";
 
 const ALLOWED_TYPES = new Map([
   ["image/jpeg", "jpg"],
@@ -46,13 +47,20 @@ export async function saveCategoryImage(slug: string, file: File) {
   if (file.size > MAX_BYTES) {
     throw new Error("Each image must be 5MB or smaller.");
   }
-  const dir = uploadDir(slug);
-  await fs.mkdir(dir, { recursive: true });
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  await fs.writeFile(path.join(dir, filename), Buffer.from(await file.arrayBuffer()));
-  return `/uploads/categories/${slug}/${filename}`;
+  const pathname = `uploads/categories/${slug}/${filename}`;
+  return storeUploadFile({
+    pathname,
+    file,
+    localAbsolutePath: path.join(uploadDir(slug), filename),
+    localPublicUrl: `/${pathname}`,
+  });
 }
 
 export async function deleteCategoryUploads(slug: string) {
+  if (useBlobStorage()) {
+    // Blob objects are left in place; catalog no longer references them.
+    return;
+  }
   await fs.rm(uploadDir(slug), { recursive: true, force: true });
 }

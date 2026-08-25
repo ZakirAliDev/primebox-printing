@@ -11,7 +11,7 @@ function LinkList({
 }) {
   return (
     <div>
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide">{title}</h2>
+      <h5 className="mb-3 text-sm font-semibold uppercase tracking-wide">{title}</h5>
       <ul className="space-y-2 text-sm text-footer-text/80">
         {links.map((link) => (
           <li key={link.href}>
@@ -54,8 +54,8 @@ export function Footer({ branding }: { branding: SiteSettings }) {
         <LinkList title="Resources" links={FOOTER.resources} />
         <div>
           <LinkList title="Help" links={FOOTER.help} />
-          <p className="mt-6 text-xs text-footer-muted">{CONTACT.addressUs}</p>
-          <p className="mt-1 text-xs text-footer-muted">{CONTACT.addressCa}</p>
+          <p className="mt-6 text-[10px] leading-snug text-footer-muted">{CONTACT.addressUs}</p>
+          <p className="mt-1 text-[10px] leading-snug text-footer-muted">{CONTACT.addressCa}</p>
         </div>
       </div>
       <div className="border-t border-footer-text/10 py-4 text-center text-xs text-footer-muted">

@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 import type { Category, Package } from "@/lib/catalog";
+import { getPrisma, isDatabaseConfigured } from "@/lib/db";
 
 export type PackagePreview = {
   kind: "package";
@@ -39,8 +40,28 @@ function newToken() {
   return randomBytes(16).toString("hex");
 }
 
-export async function savePackagePreview(draft: Package): Promise<PackagePreview> {
+async function writePreviewRecord(record: AdminPreview) {
+  if (isDatabaseConfigured()) {
+    const prisma = getPrisma();
+    await prisma.adminPreviewRecord.upsert({
+      where: { token: record.token },
+      create: {
+        token: record.token,
+        data: record as object,
+        expiresAt: new Date(record.expiresAt),
+      },
+      update: {
+        data: record as object,
+        expiresAt: new Date(record.expiresAt),
+      },
+    });
+    return;
+  }
   await ensureDir();
+  await fs.writeFile(previewPath(record.token), `${JSON.stringify(record)}\n`, "utf8");
+}
+
+export async function savePackagePreview(draft: Package): Promise<PackagePreview> {
   const token = newToken();
   const now = Date.now();
   const record: PackagePreview = {
@@ -51,7 +72,7 @@ export async function savePackagePreview(draft: Package): Promise<PackagePreview
     expiresAt: now + TTL_MS,
     package: draft,
   };
-  await fs.writeFile(previewPath(token), `${JSON.stringify(record)}\n`, "utf8");
+  await writePreviewRecord(record);
   return record;
 }
 
@@ -59,7 +80,6 @@ export async function saveCategoryPreview(
   draft: Category,
   productSlugs: string[],
 ): Promise<CategoryPreview> {
-  await ensureDir();
   const token = newToken();
   const now = Date.now();
   const record: CategoryPreview = {
@@ -71,7 +91,7 @@ export async function saveCategoryPreview(
     category: draft,
     productSlugs,
   };
-  await fs.writeFile(previewPath(token), `${JSON.stringify(record)}\n`, "utf8");
+  await writePreviewRecord(record);
   return record;
 }
 
@@ -80,6 +100,24 @@ export async function readPreview(token: string): Promise<AdminPreview | null> {
   if (!/^[a-f0-9]{32}$/i.test(clean)) {
     return null;
   }
+
+  if (isDatabaseConfigured()) {
+    const prisma = getPrisma();
+    const row = await prisma.adminPreviewRecord.findUnique({ where: { token: clean } });
+    if (!row) {
+      return null;
+    }
+    if (Date.now() > row.expiresAt.getTime()) {
+      await prisma.adminPreviewRecord.delete({ where: { token: clean } }).catch(() => undefined);
+      return null;
+    }
+    const data = row.data as AdminPreview;
+    if (!data?.token || data.token !== clean) {
+      return null;
+    }
+    return data;
+  }
+
   try {
     const raw = await fs.readFile(previewPath(clean), "utf8");
     const data = JSON.parse(raw) as AdminPreview;

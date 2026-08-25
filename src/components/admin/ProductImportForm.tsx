@@ -163,7 +163,7 @@ export function ProductImportForm() {
         </div>
       </div>
 
-      {counts ? (
+      {counts && results ? (
         <div className={adminBox}>
           <div className="px-4 py-3 text-sm text-navy">
             Imported: {counts.created} created, {counts.updated} updated, {counts.skipped} skipped

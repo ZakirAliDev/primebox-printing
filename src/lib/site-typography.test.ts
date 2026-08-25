@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   DEFAULT_SITE_TYPOGRAPHY,
   normalizeSiteTypography,
+  siteTypographyCssRules,
   siteTypographyCssVars,
 } from "./site-typography.ts";
 
@@ -46,4 +47,13 @@ test("siteTypographyCssVars emits role variables", () => {
   assert.equal(vars["--type-h3-color"], "#12315a");
   assert.equal(vars["--type-product-card-title-fs"], "16px");
   assert.equal(vars["--type-category-card-body-fs"], "14px");
+});
+
+test("siteTypographyCssRules lets inverse surfaces inherit color", () => {
+  const css = siteTypographyCssRules();
+  assert.match(css, /\.site-theme :where\(h1\)\{color:var\(--type-h1-color\)\}/);
+  assert.match(css, /\.site-theme :where\(p\)\{color:var\(--type-paragraph-color\)\}/);
+  assert.match(css, /color:inherit!important/);
+  assert.match(css, /\.text-white/);
+  assert.match(css, /\.bg-navy/);
 });

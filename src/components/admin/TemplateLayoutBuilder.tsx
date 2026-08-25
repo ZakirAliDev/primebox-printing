@@ -140,6 +140,7 @@ export function TemplateLayoutBuilder({
     }
     const selection = target.selection;
     if (selection.childId && selection.cellId) {
+      const cellId = selection.cellId;
       setLayout((current) => {
         const nextId = nextWidgetId(current, selection);
         return insertInCell(
@@ -147,7 +148,7 @@ export function TemplateLayoutBuilder({
           selection.sectionId,
           selection.columnId,
           selection.widgetId,
-          selection.cellId,
+          cellId,
           widget,
           nextId,
         );
