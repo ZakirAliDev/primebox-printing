@@ -25,5 +25,6 @@ export const config = {
     "/package-category/:path*",
     "/packages/:path*",
     "/admin/:path*",
+    "/api/:path*",
   ],
 };
