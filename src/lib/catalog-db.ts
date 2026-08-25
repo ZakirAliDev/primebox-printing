@@ -69,20 +69,25 @@ export async function loadCatalogDocument(): Promise<Catalog> {
   const useDb = isDatabaseConfigured();
 
   if (useDb) {
-    const prisma = getPrisma();
-    if (catalogMemo) {
-      const meta = await prisma.catalogDocument.findUnique({
-        where: { id: CATALOG_DOC_ID },
-        select: { updatedAt: true },
-      });
-      const version = meta ? `db:${meta.updatedAt.getTime()}` : null;
-      if (version && catalogMemo.version === version) {
-        return catalogMemo.catalog;
+    try {
+      const prisma = getPrisma();
+      if (catalogMemo?.version.startsWith("db:")) {
+        const meta = await prisma.catalogDocument.findUnique({
+          where: { id: CATALOG_DOC_ID },
+          select: { updatedAt: true },
+        });
+        const version = meta ? `db:${meta.updatedAt.getTime()}` : null;
+        if (version && catalogMemo.version === version) {
+          return catalogMemo.catalog;
+        }
       }
+      const loaded = await loadCatalogFromDatabase();
+      catalogMemo = { version: loaded.version, catalog: loaded.catalog };
+      return loaded.catalog;
+    } catch (error) {
+      // Build hosts / empty DBs should not break `next build`. Fall back to bundled JSON.
+      console.warn("[catalog] MySQL unavailable, using catalog.json fallback.", error);
     }
-    const loaded = await loadCatalogFromDatabase();
-    catalogMemo = { version: loaded.version, catalog: loaded.catalog };
-    return loaded.catalog;
   }
 
   if (catalogMemo?.version.startsWith("file:")) {
@@ -98,9 +103,9 @@ export async function loadCatalogDocument(): Promise<Catalog> {
 
 export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
   if (!isDatabaseConfigured()) {
-    if (process.env.VERCEL) {
+    if (process.env.VERCEL || process.env.HOSTINGER) {
       throw new Error(
-        "DATABASE_URL is not set. Catalog edits can’t persist on Vercel without MySQL. Add DATABASE_URL in the Vercel project env.",
+        "DATABASE_URL is not set. Catalog edits can’t persist without MySQL.",
       );
     }
     await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
