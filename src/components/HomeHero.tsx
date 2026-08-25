@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
-import { GoogleFontStylesheet } from "@/components/GoogleFontStylesheet";
-import { fontFamilyCss } from "@/lib/google-fonts";
+import { fontFamilyCss } from "@/lib/font-face";
 import {
   DEFAULT_HERO_BUTTON_HREF,
   DEFAULT_HERO_BUTTON_LABEL,
@@ -136,14 +135,6 @@ export function HomeHero({ hero }: { hero: HeroSettings }) {
           className="pointer-events-none absolute inset-0 h-full w-full object-cover"
         />
       ) : null}
-      <GoogleFontStylesheet
-        families={[
-          hero.typography.heading.fontFamily,
-          hero.typography.subheading.fontFamily,
-          hero.typography.supporting.fontFamily,
-          hero.typography.button.fontFamily,
-        ]}
-      />
       <div className="relative mx-auto h-full max-w-[1320px] md:px-[100px]">
         {hero.showArrows && length > 1 ? (
           <>

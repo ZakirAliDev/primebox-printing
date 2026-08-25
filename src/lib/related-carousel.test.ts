@@ -4,6 +4,7 @@ import {
   relatedLoopBounds,
   relatedLoopItems,
   relatedSnapLoopIndex,
+  uniqueRelatedItems,
 } from "./related-carousel.ts";
 
 const items = [
@@ -12,6 +13,13 @@ const items = [
   { slug: "c" },
   { slug: "d" },
 ];
+
+test("uniqueRelatedItems drops duplicate slugs", () => {
+  assert.deepEqual(
+    uniqueRelatedItems([{ slug: "a" }, { slug: "b" }, { slug: "a" }, { slug: "b" }]).map((item) => item.slug),
+    ["a", "b"],
+  );
+});
 
 test("relatedLoopItems clones both ends for infinite scrolling", () => {
   const looped = relatedLoopItems(items, 3);
@@ -28,10 +36,14 @@ test("relatedSnapLoopIndex wraps forward and backward", () => {
   assert.equal(relatedSnapLoopIndex(min - 1, items, visible), max);
 });
 
-test("relatedLoopItems repeats short lists so the viewport stays filled", () => {
-  const shortItems = [{ slug: "a" }, { slug: "b" }];
+test("relatedLoopItems never repeats products when the list is short", () => {
+  const shortItems = [{ slug: "a" }, { slug: "b" }, { slug: "a" }];
   const visible = 3;
   const looped = relatedLoopItems(shortItems, visible);
-  assert.ok(looped.length >= visible + shortItems.length + visible);
-  assert.equal(relatedSnapLoopIndex(relatedLoopBounds(shortItems, visible).max + 1, shortItems, visible), relatedLoopBounds(shortItems, visible).min);
+  assert.deepEqual(
+    looped.map((item) => item.slug),
+    ["a", "b"],
+  );
+  assert.equal(relatedSnapLoopIndex(1, shortItems, visible), 0);
+  assert.deepEqual(relatedLoopBounds(shortItems, visible), { start: 0, min: 0, max: 0 });
 });

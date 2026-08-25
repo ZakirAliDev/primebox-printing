@@ -5,10 +5,11 @@ import { CONTACT, NAV_LINKS, SITE_NAME } from "@/lib/site";
 
 export function Header({ branding }: { branding: SiteSettings }) {
   const showLogo = Boolean(branding.logoInHeader && branding.logo);
+
   return (
     <header className="border-b border-border/10 bg-header text-header-text">
       <div className="bg-header-bar text-header-bar-text">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 text-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-1.5 text-sm">
           <Link href="/quote" className="shrink-0 rounded bg-button px-3 py-1 font-semibold text-button-text">
             Order in bulk — 25% off
           </Link>
@@ -21,13 +22,13 @@ export function Header({ branding }: { branding: SiteSettings }) {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-        <Link href="/" className="font-semibold tracking-wide">
+      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2.5 sm:gap-5 sm:py-3">
+        <Link href="/" className="shrink-0 font-semibold tracking-wide">
           {showLogo ? (
             <img
               src={branding.logo}
               alt={SITE_NAME}
-              className="w-auto max-w-full object-contain object-left"
+              className="w-auto max-w-[9.5rem] object-contain object-left sm:max-w-[12rem]"
               style={{ height: branding.logoHeaderHeight }}
             />
           ) : (
@@ -38,21 +39,38 @@ export function Header({ branding }: { branding: SiteSettings }) {
           )}
         </Link>
 
-        <form action="/search" className="min-w-48 flex-1">
-          <label className="sr-only" htmlFor="site-search">
-            Search for packages
-          </label>
-          <input
-            id="site-search"
-            name="q"
-            type="search"
-            required
-            placeholder="Search for packages"
-            className="w-full rounded-full border border-border/20 bg-surface px-4 py-2 text-sm outline-none focus:border-focus"
-          />
-        </form>
+        <div className="min-w-0 flex-1">
+          <form action="/search">
+            <label className="sr-only" htmlFor="site-search">
+              Search for packages
+            </label>
+            <input
+              id="site-search"
+              name="q"
+              type="search"
+              required
+              placeholder="Search for packages"
+              className="w-full rounded-full border border-border/20 bg-surface px-4 py-1.5 text-sm outline-none focus:border-focus"
+            />
+          </form>
 
-        <div className="hidden text-right text-sm lg:block">
+          <nav className="mt-5 hidden md:block" aria-label="Main">
+            <ul className="flex w-full items-center justify-between gap-x-2 text-sm font-medium">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href} className="min-w-0 shrink">
+                  <Link
+                    href={link.href}
+                    className="whitespace-nowrap text-header-text/80 transition-colors hover:text-header-text"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="hidden shrink-0 text-right text-sm leading-snug lg:block">
           <p className="font-medium">Speak with our packaging expert</p>
           <a className="block text-header-text/80" href={`tel:${CONTACT.phoneUsTel}`}>
             {CONTACT.phoneUs}
@@ -62,16 +80,17 @@ export function Header({ branding }: { branding: SiteSettings }) {
           </a>
         </div>
 
-        <Link href="/quote" className="rounded bg-button px-4 py-2 text-sm font-semibold text-button-text">
+        <Link
+          href="/quote"
+          className="shrink-0 rounded bg-button px-3.5 py-2 text-sm font-semibold text-button-text"
+        >
           Get Instant Quote
         </Link>
       </div>
 
-      <nav className="mx-auto flex max-w-6xl items-center gap-1 px-4 pb-3" aria-label="Main">
-        <details className="md:hidden">
-          <summary className="cursor-pointer list-none rounded border border-border/20 px-3 py-1 text-sm font-medium">
-            Menu
-          </summary>
+      <nav className="border-t border-border/10 px-4 py-2 md:hidden" aria-label="Main">
+        <details>
+          <summary className="cursor-pointer list-none text-sm font-medium">Menu</summary>
           <ul className="mt-2 flex flex-col gap-2 text-sm">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
@@ -80,15 +99,6 @@ export function Header({ branding }: { branding: SiteSettings }) {
             ))}
           </ul>
         </details>
-        <ul className="hidden gap-6 text-sm font-medium md:flex">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link href={link.href} className="hover:text-header-text/70">
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
       </nav>
     </header>
   );

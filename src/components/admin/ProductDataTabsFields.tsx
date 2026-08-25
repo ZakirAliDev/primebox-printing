@@ -147,6 +147,7 @@ export function ProductDataTabsFields({
                     Remove
                   </button>
                 </div>
+                <input type="hidden" name="tabTitle" value={row.title} />
                 <input type="hidden" name="tabSource" value={row.source} />
                 <input type="hidden" name="tabTemplate" value={row.template ?? ""} />
                 <input type="hidden" name="tabContent" value={row.content} />
@@ -164,7 +165,6 @@ export function ProductDataTabsFields({
                       <label className="block">
                         <span className={`mb-1 block text-xs ${adminMuted}`}>Tab title</span>
                         <input
-                          name="tabTitle"
                           value={row.title}
                           placeholder="e.g. Specifications"
                           className={adminField}

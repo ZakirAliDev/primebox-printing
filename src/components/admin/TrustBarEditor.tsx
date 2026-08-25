@@ -5,6 +5,8 @@ import { adminBox, adminField, adminGhost, adminMuted, adminPrimary, adminTrash 
 import {
   TRUST_BAR_AUTOPLAY_MAX,
   TRUST_BAR_AUTOPLAY_MIN,
+  TRUST_BAR_IMAGE_HEIGHT_MAX,
+  TRUST_BAR_IMAGE_HEIGHT_MIN,
   TRUST_BAR_SLIDES_SHOW_MAX,
   TRUST_BAR_SLIDES_SHOW_MIN,
   createTrustBarSlide,
@@ -48,6 +50,7 @@ function ImageSlotEditor({
   title,
   item,
   busy,
+  inline = false,
   onChange,
   onUpload,
   onClear,
@@ -55,50 +58,99 @@ function ImageSlotEditor({
   title: string;
   item: TrustBarImage;
   busy: boolean;
+  inline?: boolean;
   onChange: (patch: Partial<TrustBarImage>) => void;
   onUpload: (file: File) => void;
   onClear: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const preview = (
+    <div className="flex h-14 w-28 shrink-0 items-center justify-center overflow-hidden rounded border border-navy/15 bg-white px-2">
+      {item.image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={item.image} alt={item.alt || title} className="max-h-12 max-w-full object-contain" />
+      ) : (
+        <span className={`text-xs ${adminMuted}`}>No image</span>
+      )}
+    </div>
+  );
+
+  const uploadControls = (
+    <>
+      <button
+        type="button"
+        className={adminGhost}
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+      >
+        {busy ? "Uploading…" : item.image ? "Replace" : "Upload"}
+      </button>
+      {item.image ? (
+        <button type="button" className={adminGhost} disabled={busy} onClick={onClear}>
+          Clear
+        </button>
+      ) : null}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file) {
+            onUpload(file);
+          }
+        }}
+      />
+    </>
+  );
+
+  const urlField = (
+    <label className="flex min-w-[180px] flex-1 items-center gap-2 text-sm text-navy">
+      <span className="shrink-0 whitespace-nowrap text-navy/70">Optional URL</span>
+      <input
+        type="url"
+        className={adminField}
+        value={item.href}
+        disabled={busy}
+        placeholder="https://"
+        onChange={(event) => onChange({ href: event.target.value })}
+      />
+    </label>
+  );
+
+  const altField = (
+    <label className="flex min-w-[160px] flex-1 items-center gap-2 text-sm text-navy">
+      <span className="shrink-0 whitespace-nowrap text-navy/70">Alt text</span>
+      <input
+        type="text"
+        className={adminField}
+        value={item.alt}
+        disabled={busy}
+        onChange={(event) => onChange({ alt: event.target.value })}
+      />
+    </label>
+  );
+
+  if (inline) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        {preview}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">{uploadControls}</div>
+        {urlField}
+        {altField}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3 rounded-lg border border-navy/10 bg-navy/[0.02] p-3">
       <p className="text-sm font-medium text-navy">{title}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex h-14 w-28 items-center justify-center overflow-hidden rounded border border-navy/15 bg-white px-2">
-          {item.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.image} alt={item.alt || title} className="max-h-12 max-w-full object-contain" />
-          ) : (
-            <span className={`text-xs ${adminMuted}`}>No image</span>
-          )}
-        </div>
-        <button
-          type="button"
-          className={adminGhost}
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {busy ? "Uploading…" : item.image ? "Replace" : "Upload"}
-        </button>
-        {item.image ? (
-          <button type="button" className={adminGhost} disabled={busy} onClick={onClear}>
-            Clear
-          </button>
-        ) : null}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (file) {
-              onUpload(file);
-            }
-          }}
-        />
+        {preview}
+        {uploadControls}
       </div>
       <label className="block space-y-1 text-sm text-navy">
         <span className="text-navy/70">Optional URL</span>
@@ -220,8 +272,8 @@ export function TrustBarEditor({
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-6">
-          <label className="flex items-center gap-2 text-sm text-navy">
+        <div className="flex flex-nowrap items-center gap-4 overflow-x-auto text-sm text-navy">
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap">
             <Switch
               checked={trustBar.carousel.autoplay}
               disabled={busy}
@@ -235,16 +287,16 @@ export function TrustBarEditor({
             />
             <span>Autoplay</span>
           </label>
-          <label className="flex items-center gap-2 text-sm text-navy">
-            <span className="text-navy/70">Interval (ms)</span>
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+            <span className="text-navy/70">Interval</span>
             <input
               type="number"
               min={TRUST_BAR_AUTOPLAY_MIN}
               max={TRUST_BAR_AUTOPLAY_MAX}
               step={500}
-              className={`${adminField} w-28`}
+              className={`${adminField} w-24`}
               value={trustBar.carousel.autoplayMs}
-              disabled={busy}
+              disabled={busy || !trustBar.carousel.autoplay}
               onChange={(event) =>
                 onChange({
                   ...trustBar,
@@ -252,14 +304,45 @@ export function TrustBarEditor({
                 })
               }
             />
+            <span className="text-navy/70">(ms)</span>
           </label>
-          <label className="flex items-center gap-2 text-sm text-navy">
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+            <span className="text-navy/70">Still size</span>
+            <input
+              type="number"
+              min={TRUST_BAR_IMAGE_HEIGHT_MIN}
+              max={TRUST_BAR_IMAGE_HEIGHT_MAX}
+              className={`${adminField} w-16`}
+              value={trustBar.stillHeight}
+              disabled={busy}
+              onChange={(event) =>
+                onChange({ ...trustBar, stillHeight: Number(event.target.value) })
+              }
+            />
+            <span className="text-navy/70">(px)</span>
+          </label>
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+            <span className="text-navy/70">Carousel size</span>
+            <input
+              type="number"
+              min={TRUST_BAR_IMAGE_HEIGHT_MIN}
+              max={TRUST_BAR_IMAGE_HEIGHT_MAX}
+              className={`${adminField} w-16`}
+              value={trustBar.slideHeight}
+              disabled={busy}
+              onChange={(event) =>
+                onChange({ ...trustBar, slideHeight: Number(event.target.value) })
+              }
+            />
+            <span className="text-navy/70">(px)</span>
+          </label>
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap">
             <span className="text-navy/70">Desktop slides</span>
             <input
               type="number"
               min={TRUST_BAR_SLIDES_SHOW_MIN}
               max={TRUST_BAR_SLIDES_SHOW_MAX}
-              className={`${adminField} w-20`}
+              className={`${adminField} w-16`}
               value={trustBar.carousel.slidesToShowDesktop}
               disabled={busy}
               onChange={(event) =>
@@ -273,13 +356,13 @@ export function TrustBarEditor({
               }
             />
           </label>
-          <label className="flex items-center gap-2 text-sm text-navy">
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap">
             <span className="text-navy/70">Mobile slides</span>
             <input
               type="number"
               min={TRUST_BAR_SLIDES_SHOW_MIN}
               max={TRUST_BAR_SLIDES_SHOW_MAX}
-              className={`${adminField} w-20`}
+              className={`${adminField} w-16`}
               value={trustBar.carousel.slidesToShowMobile}
               disabled={busy}
               onChange={(event) =>
@@ -355,6 +438,7 @@ export function TrustBarEditor({
                     title="Logo image"
                     item={slide}
                     busy={busy}
+                    inline
                     onChange={(patch) => updateSlide(index, patch)}
                     onUpload={(file) => onUploadSlide(index, file)}
                     onClear={() => updateSlide(index, { image: "" })}

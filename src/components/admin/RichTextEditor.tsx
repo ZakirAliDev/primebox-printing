@@ -2,7 +2,7 @@
 
 import type { IAllProps } from "@tinymce/tinymce-react";
 import dynamic from "next/dynamic";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Editor as TinyMCEEditor } from "tinymce";
 
 const TinyMceEditor = dynamic<IAllProps>(
@@ -48,7 +48,10 @@ export function RichTextEditor({
   onHtmlChange,
 }: RichTextEditorProps) {
   const editorRef = useRef<TinyMCEEditor | null>(null);
+  const hiddenRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const htmlRef = useRef(defaultValue);
+  const onHtmlChangeRef = useRef(onHtmlChange);
   const [mode, setMode] = useState<"visual" | "text">("visual");
   const [html, setHtml] = useState(defaultValue);
   const [editorSeed, setEditorSeed] = useState(defaultValue);
@@ -56,9 +59,16 @@ export function RichTextEditor({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  htmlRef.current = html;
+  onHtmlChangeRef.current = onHtmlChange;
+
   const commit = (value: string) => {
     setHtml(value);
-    onHtmlChange?.(value);
+    htmlRef.current = value;
+    if (hiddenRef.current) {
+      hiddenRef.current.value = value;
+    }
+    onHtmlChangeRef.current?.(value);
   };
 
   const syncFromEditor = () => {
@@ -66,6 +76,60 @@ export function RichTextEditor({
       commit(editorRef.current.getContent());
     }
   };
+
+  useEffect(() => {
+    const onSync = () => {
+      if (!editorRef.current) {
+        return;
+      }
+      commit(editorRef.current.getContent());
+    };
+    document.addEventListener("admin:sync-editors", onSync);
+    return () => document.removeEventListener("admin:sync-editors", onSync);
+  }, []);
+
+  // Keep the hidden field current on native / server-action submits (Publish sits outside the form).
+  useEffect(() => {
+    if (!name) {
+      return;
+    }
+    const input = hiddenRef.current;
+    const form = input?.form;
+    if (!form) {
+      return;
+    }
+
+    const writeHtml = (target?: FormData) => {
+      let value = htmlRef.current;
+      if (editorRef.current) {
+        value = editorRef.current.getContent();
+      }
+      htmlRef.current = value;
+      if (input) {
+        input.value = value;
+      }
+      if (target && name) {
+        target.set(name, value);
+      }
+      setHtml(value);
+      onHtmlChangeRef.current?.(value);
+    };
+
+    const onSubmit = () => {
+      writeHtml();
+    };
+
+    const onFormData = (event: FormDataEvent) => {
+      writeHtml(event.formData);
+    };
+
+    form.addEventListener("submit", onSubmit, true);
+    form.addEventListener("formdata", onFormData);
+    return () => {
+      form.removeEventListener("submit", onSubmit, true);
+      form.removeEventListener("formdata", onFormData);
+    };
+  }, [name]);
 
   const switchMode = (next: "visual" | "text") => {
     if (mode === "visual") {
@@ -166,7 +230,7 @@ export function RichTextEditor({
 
   return (
     <div className={`wp-classic-editor relative z-10 ${compact ? "compact-toolbar" : ""}`}>
-      {name ? <input type="hidden" name={name} value={html} /> : null}
+      {name ? <input ref={hiddenRef} type="hidden" name={name} defaultValue={defaultValue} /> : null}
       <input
         ref={fileRef}
         type="file"

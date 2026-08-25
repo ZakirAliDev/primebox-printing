@@ -2,28 +2,29 @@ export type RelatedCarouselItem = {
   slug: string;
 };
 
-function extendedTrackItems<T extends RelatedCarouselItem>(items: T[], visible: number) {
-  const count = items.length;
-  if (count === 0) {
-    return [];
+/** Unique items only — never pad the list by repeating products. */
+export function uniqueRelatedItems<T extends RelatedCarouselItem>(items: T[]): T[] {
+  const seen = new Set<string>();
+  const next: T[] = [];
+  for (const item of items) {
+    if (!item.slug || seen.has(item.slug)) {
+      continue;
+    }
+    seen.add(item.slug);
+    next.push(item);
   }
-  if (count === 1) {
-    const total = Math.max(visible + 2, 3);
-    return Array.from({ length: total }, () => items[0]);
-  }
-  if (count <= visible) {
-    const minLength = visible + count + visible;
-    const repeats = Math.ceil(minLength / count);
-    return Array.from({ length: repeats }, () => items).flat();
-  }
-  return items;
+  return next;
 }
 
 export function relatedLoopItems<T extends RelatedCarouselItem>(items: T[], visible: number) {
-  const core = extendedTrackItems(items, visible);
+  const core = uniqueRelatedItems(items);
   const count = core.length;
   if (count === 0) {
     return [];
+  }
+  // Not enough unique products to fill a looping track — show each once.
+  if (count <= visible) {
+    return core;
   }
 
   const cloneCount = Math.min(visible, count);
@@ -31,14 +32,13 @@ export function relatedLoopItems<T extends RelatedCarouselItem>(items: T[], visi
 }
 
 export function relatedLoopBounds(items: RelatedCarouselItem[], visible: number) {
-  const core = extendedTrackItems(items, visible);
+  const core = uniqueRelatedItems(items);
   const count = core.length;
   if (count === 0) {
     return { start: 0, min: 0, max: 0 };
   }
-  if (count === 1 && items.length === 1) {
-    const total = Math.max(visible + 2, 3);
-    return { start: 1, min: 1, max: total - 2 };
+  if (count <= visible) {
+    return { start: 0, min: 0, max: 0 };
   }
 
   const cloneCount = Math.min(visible, count);
@@ -46,19 +46,13 @@ export function relatedLoopBounds(items: RelatedCarouselItem[], visible: number)
 }
 
 export function relatedSnapLoopIndex(index: number, items: RelatedCarouselItem[], visible: number) {
-  const { min, max } = relatedLoopBounds(items, visible);
-  if (items.length === 0) {
+  const core = uniqueRelatedItems(items);
+  const { min, max } = relatedLoopBounds(core, visible);
+  if (core.length === 0) {
     return 0;
   }
-  if (items.length === 1) {
-    const total = Math.max(visible + 2, 3);
-    if (index >= total - 1) {
-      return 1;
-    }
-    if (index <= 0) {
-      return total - 2;
-    }
-    return index;
+  if (core.length <= visible) {
+    return 0;
   }
   if (index > max) {
     return min;

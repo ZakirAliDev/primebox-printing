@@ -1,6 +1,9 @@
 import { TemplateIcon } from "@/components/TemplateIcons";
 import { RichText } from "@/components/RichText";
-import { collectGoogleFonts, googleFontsStylesheetUrl } from "@/lib/google-fonts";
+import {
+  collectGoogleFontsFromLayout,
+  googleFontsStylesheetUrl,
+} from "@/lib/font-face";
 import {
   gridCellHiddenClass,
   gridCssVars,
@@ -12,7 +15,7 @@ import {
 } from "@/lib/template-layout";
 
 export function TemplateLayoutView({ layout }: { layout: TemplateSection[] }) {
-  const href = googleFontsStylesheetUrl(collectGoogleFonts(layout));
+  const href = googleFontsStylesheetUrl(collectGoogleFontsFromLayout(layout));
 
   if (layout.length === 0) {
     return null;

@@ -1,6 +1,15 @@
 import catalogData from "@/data/catalog.json";
 import type { ColorScheme } from "@/lib/color-scheme";
-import { normalizeColorScheme } from "@/lib/color-scheme";
+import {
+  DEFAULT_LINK_TRANSITION_MS,
+  normalizeColorScheme,
+  normalizeLinkTransitionMs,
+} from "@/lib/color-scheme";
+import {
+  DEFAULT_SITE_TYPOGRAPHY,
+  normalizeSiteTypography,
+  type SiteTypographySettings,
+} from "@/lib/site-typography";
 import { DEFAULT_HERO_SETTINGS, normalizeHeroSettings, type HeroSettings } from "@/lib/hero-slides";
 import {
   DEFAULT_PROMO_BAR_SETTINGS,
@@ -17,6 +26,16 @@ import {
   normalizeTrustBarSettings,
   type TrustBarSettings,
 } from "@/lib/trust-bar";
+import {
+  DEFAULT_FEATURED_CATEGORY_SETTINGS,
+  normalizeFeaturedCategorySettings,
+  type FeaturedCategorySettings,
+} from "@/lib/featured-category";
+import {
+  DEFAULT_HOME_TESTIMONIALS_SETTINGS,
+  normalizeHomeTestimonialsSettings,
+  type HomeTestimonialsSettings,
+} from "@/lib/home-testimonials";
 import { defaultAppearance, htmlToLayout, normalizeLayout, type TemplateSection } from "@/lib/template-layout";
 
 export type Category = {
@@ -28,6 +47,7 @@ export type Category = {
   description: string;
   /** Supporting text on home Shop by industry category cards. */
   cardSupportingText: string;
+  /** Image on home Shop by industry cards. Not shown on the category page. */
   image: string;
   parentSlug: string;
 };
@@ -85,9 +105,13 @@ export type SiteSettings = {
   separateFooterLogo: boolean;
   footerLogo: string;
   colors: ColorScheme;
+  linkTransitionMs: number;
+  typography: SiteTypographySettings;
   promoBar: PromoBarSettings;
   trustBar: TrustBarSettings;
   shopByIndustry: ShopByIndustrySettings;
+  featuredCategory: FeaturedCategorySettings;
+  testimonials: HomeTestimonialsSettings;
   hero: HeroSettings;
 };
 
@@ -394,7 +418,7 @@ export function isCategoryParentInvalid(categories: Category[], slug: string, pa
   return false;
 }
 
-export const RELATED_LIMIT = 3;
+export const RELATED_LIMIT = 12;
 
 export const DEFAULT_LOGO_HEIGHT = 40;
 export const LOGO_HEIGHT_MIN = 16;
@@ -410,9 +434,13 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   separateFooterLogo: false,
   footerLogo: "",
   colors: normalizeColorScheme(),
+  linkTransitionMs: DEFAULT_LINK_TRANSITION_MS,
+  typography: DEFAULT_SITE_TYPOGRAPHY,
   promoBar: DEFAULT_PROMO_BAR_SETTINGS,
   trustBar: DEFAULT_TRUST_BAR_SETTINGS,
   shopByIndustry: DEFAULT_SHOP_BY_INDUSTRY_SETTINGS,
+  featuredCategory: DEFAULT_FEATURED_CATEGORY_SETTINGS,
+  testimonials: DEFAULT_HOME_TESTIMONIALS_SETTINGS,
   hero: DEFAULT_HERO_SETTINGS,
 };
 
@@ -427,9 +455,13 @@ export function normalizeSiteSettings(input?: Partial<SiteSettings> | null): Sit
     separateFooterLogo: input?.separateFooterLogo === true,
     footerLogo: typeof input?.footerLogo === "string" ? input.footerLogo.trim() : "",
     colors: normalizeColorScheme(input?.colors),
+    linkTransitionMs: normalizeLinkTransitionMs(input?.linkTransitionMs),
+    typography: normalizeSiteTypography(input?.typography),
     promoBar: normalizePromoBarSettings(input?.promoBar),
     trustBar: normalizeTrustBarSettings(input?.trustBar),
     shopByIndustry: normalizeShopByIndustrySettings(input?.shopByIndustry),
+    featuredCategory: normalizeFeaturedCategorySettings(input?.featuredCategory),
+    testimonials: normalizeHomeTestimonialsSettings(input?.testimonials),
     hero: normalizeHeroSettings(input?.hero),
   };
 }
@@ -740,9 +772,16 @@ export function packageCoverImage(item: Pick<Package, "image" | "gallery">) {
 
 export function relatedPackages(item: Package, allPackages = getPackages()) {
   if (item.relatedMode === "manual") {
+    const seen = new Set<string>();
     return item.relatedSlugs
       .map((slug) => allPackages.find((entry) => entry.slug === slug))
-      .filter((related): related is Package => Boolean(related));
+      .filter((related): related is Package => {
+        if (!related || related.slug === item.slug || seen.has(related.slug)) {
+          return false;
+        }
+        seen.add(related.slug);
+        return true;
+      });
   }
 
   const categories = new Set(item.categorySlugs);

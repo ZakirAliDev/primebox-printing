@@ -21,6 +21,7 @@ export type ColorScheme = {
   button: string;
   buttonText: string;
   link: string;
+  linkHover: string;
   focus: string;
 };
 
@@ -47,8 +48,21 @@ export const DEFAULT_COLOR_SCHEME: ColorScheme = {
   button: "#f5c518",
   buttonText: "#12315a",
   link: "#12315a",
+  linkHover: "#f5c518",
   focus: "#12315a",
 };
+
+export const LINK_TRANSITION_MS_MIN = 0;
+export const LINK_TRANSITION_MS_MAX = 2000;
+export const DEFAULT_LINK_TRANSITION_MS = 200;
+
+export function normalizeLinkTransitionMs(value: unknown): number {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_LINK_TRANSITION_MS;
+  }
+  return Math.min(LINK_TRANSITION_MS_MAX, Math.max(LINK_TRANSITION_MS_MIN, Math.round(parsed)));
+}
 
 const HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -88,7 +102,7 @@ const PRIMARY_FOLLOWERS: (keyof ColorScheme)[] = [
   "link",
   "focus",
 ];
-const ACCENT_FOLLOWERS: (keyof ColorScheme)[] = ["footerLink", "button"];
+const ACCENT_FOLLOWERS: (keyof ColorScheme)[] = ["footerLink", "button", "linkHover"];
 const ON_PRIMARY_FOLLOWERS: (keyof ColorScheme)[] = ["headerBarText", "footerText", "heroText"];
 const ON_ACCENT_FOLLOWERS: (keyof ColorScheme)[] = ["buttonText"];
 
@@ -169,6 +183,13 @@ export function colorSchemeCssVars(scheme: ColorScheme): Record<string, string> 
     "--scheme-button": resolved.button,
     "--scheme-button-text": resolved.buttonText,
     "--scheme-link": resolved.link,
+    "--scheme-link-hover": resolved.linkHover,
     "--scheme-focus": resolved.focus,
+  };
+}
+
+export function linkTransitionCssVar(ms: number): Record<string, string> {
+  return {
+    "--scheme-link-transition": `${normalizeLinkTransitionMs(ms)}ms`,
   };
 }

@@ -8,6 +8,8 @@ export const adminPrimary =
   "cursor-pointer rounded bg-yellow px-4 py-2 text-sm font-semibold text-navy hover:bg-yellow/90";
 export const adminGhost =
   "cursor-pointer rounded border border-navy/15 bg-white px-3 py-1.5 text-sm font-medium text-navy hover:border-yellow";
+export const adminGhostOnDark =
+  "cursor-pointer rounded border border-white/30 bg-transparent px-3 py-1.5 text-sm font-medium text-white hover:border-white/60 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40";
 export const adminAddNew = "cursor-pointer rounded bg-yellow px-3 py-1.5 text-sm font-semibold text-navy";
 export const adminTrash = "cursor-pointer text-red-700 hover:underline";
 export const adminTrashOnDark = "cursor-pointer text-sm text-red-300 hover:text-white";

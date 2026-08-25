@@ -4,7 +4,7 @@ import { AdminNotice } from "@/components/admin/AdminNotice";
 import { AdminPageActions } from "@/components/admin/AdminPageBar";
 import { ConfirmSubmit } from "@/components/admin/ConfirmSubmit";
 import { RowActions } from "@/components/admin/RowActions";
-import { adminAddNew } from "@/components/admin/ui";
+import { adminAddNew, adminGhost } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
 import { readCatalog } from "@/lib/catalog-store";
 
@@ -32,6 +32,9 @@ export default async function AdminProductsPage({ searchParams }: PageProps) {
   return (
     <div>
       <AdminPageActions>
+        <Link href="/admin/products/import" className={adminGhost}>
+          Import
+        </Link>
         <Link href="/admin/products/new" className={adminAddNew}>
           Add New
         </Link>

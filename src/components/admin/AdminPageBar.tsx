@@ -3,13 +3,15 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
-import { adminPrimary } from "@/components/admin/ui";
+import { previewCategoryAction, previewPackageAction } from "@/app/admin/actions";
+import { adminGhostOnDark, adminPrimary } from "@/components/admin/ui";
 
 type BarSlots = {
   intro: HTMLElement | null;
@@ -56,6 +58,9 @@ function titleForPath(pathname: string) {
   }
   if (pathname === "/admin/products/new") {
     return "Add New Product";
+  }
+  if (pathname === "/admin/products/import") {
+    return "Import products";
   }
   if (pathname === "/admin/products/page-settings" || pathname.startsWith("/admin/products/page-settings/")) {
     return "Product page settings";
@@ -135,22 +140,124 @@ export function AdminPageActions({ children }: { children: ReactNode }) {
   return createPortal(children, actions);
 }
 
+function AdminPreviewButton({
+  formId,
+  kind,
+}: {
+  formId: string;
+  kind: "package" | "category";
+}) {
+  const [slug, setSlug] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const form = document.getElementById(formId);
+    const input =
+      form?.querySelector<HTMLInputElement>('input[name="slug"]') ??
+      document.querySelector<HTMLInputElement>(`input[form="${formId}"][name="slug"]`);
+    if (!input) {
+      return;
+    }
+    const sync = () => setSlug(input.value.trim());
+    sync();
+    input.addEventListener("input", sync);
+    input.addEventListener("change", sync);
+    return () => {
+      input.removeEventListener("input", sync);
+      input.removeEventListener("change", sync);
+    };
+  }, [formId]);
+
+  const runPreview = async () => {
+    if (busy) {
+      return;
+    }
+    const form = document.getElementById(formId);
+    if (!(form instanceof HTMLFormElement)) {
+      setError("Form not found.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      form.dispatchEvent(new Event("admin:sync-editors", { bubbles: true }));
+      document.dispatchEvent(new Event("admin:sync-editors"));
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+      const formData = new FormData(form);
+      const result =
+        kind === "package" ? await previewPackageAction(formData) : await previewCategoryAction(formData);
+      if ("error" in result && result.error) {
+        setError(result.error);
+        return;
+      }
+      if ("url" in result && result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+      }
+    } catch {
+      setError("Could not create preview.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <span className="flex flex-col items-end gap-1">
+      <button
+        type="button"
+        disabled={!slug || busy}
+        className={adminGhostOnDark}
+        title={!slug ? "Enter a title or slug to preview" : "Preview unsaved changes"}
+        onClick={() => void runPreview()}
+      >
+        {busy ? "Preparing…" : "Preview"}
+      </button>
+      {error ? <span className="max-w-[14rem] text-right text-xs text-red-300">{error}</span> : null}
+    </span>
+  );
+}
+
 export function AdminPublishActions({
   isNew,
   formId,
   submitLabel,
   trash,
+  previewKind,
 }: {
   isNew: boolean;
   formId: string;
   submitLabel?: string;
   trash?: ReactNode;
+  /** Enables WordPress-style unsaved preview for products or categories. */
+  previewKind?: "package" | "category";
 }) {
+  const publish = () => {
+    const form = document.getElementById(formId);
+    if (!(form instanceof HTMLFormElement)) {
+      return;
+    }
+    document.dispatchEvent(new Event("admin:sync-editors"));
+    form.dispatchEvent(new Event("admin:sync-editors", { bubbles: true }));
+    // Let TinyMCE / FAQ listeners flush into inputs before the server action reads FormData.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      });
+    });
+  };
+
   return (
     <AdminPageActions>
       <p className="text-sm text-white/75">Status: {isNew ? "Draft" : "Published"}</p>
       {trash}
-      <button form={formId} type="submit" className={adminPrimary}>
+      {previewKind ? <AdminPreviewButton formId={formId} kind={previewKind} /> : null}
+      <button type="button" className={adminPrimary} onClick={publish}>
         {submitLabel ?? (isNew ? "Publish" : "Update")}
       </button>
     </AdminPageActions>

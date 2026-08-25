@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import {
   siteField,
   siteFieldLabel,
@@ -10,20 +9,7 @@ import {
   siteTextarea,
   siteSubmit,
 } from "@/components/form-ui";
-
-export async function submitContact(formData: FormData) {
-  "use server";
-
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const returnTo = String(formData.get("returnTo") ?? "/contact-us");
-
-  if (!name || !email) {
-    redirect(returnTo.includes("?") ? `${returnTo}&error=1` : `${returnTo}?error=1`);
-  }
-
-  redirect(returnTo.includes("?") ? `${returnTo}&sent=1` : `${returnTo}?sent=1`);
-}
+import { submitContact } from "@/app/(site)/actions";
 
 export function ContactForm({
   embedded = false,
@@ -35,7 +21,7 @@ export function ContactForm({
   return (
     <form action={submitContact} className={embedded ? siteFormEmbedded : siteFormStandalone}>
       <input type="hidden" name="returnTo" value={returnTo} />
-      <h2 className={siteFormTitle}>Leave your details. Our experts will approach you soon.</h2>
+      <h5 className={siteFormTitle}>Leave your details. Our experts will approach you soon.</h5>
       <div className={embedded ? siteFieldRowEmbedded : siteFieldRow}>
         <label className={siteFieldLabel}>
           Your name *

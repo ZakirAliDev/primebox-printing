@@ -4,11 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const PRODUCT_SECTIONS = ["new", "categories", "category-page-settings", "tags", "attributes", "reviews", "page-settings"] as const;
+const PRODUCT_SECTIONS = ["new", "import", "categories", "category-page-settings", "tags", "attributes", "reviews", "page-settings"] as const;
 
 const PRODUCT_SUBMENU = [
   { href: "/admin/products", label: "All Products", id: "all" },
   { href: "/admin/products/new", label: "Add new product", id: "new" },
+  { href: "/admin/products/import", label: "Import products", id: "import" },
   { href: "/admin/products/categories", label: "Categories", id: "categories" },
   { href: "/admin/products/categories/page-settings", label: "Category page settings", id: "category-page-settings" },
   { href: "/admin/products/tags", label: "Tags", id: "tags" },

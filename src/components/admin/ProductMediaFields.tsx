@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { savePackageAction } from "@/app/admin/actions";
 import { adminBox, adminBoxHead, adminMuted } from "@/components/admin/ui";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
@@ -41,21 +40,18 @@ export function ProductMediaFields({
       return;
     }
 
-    const handleSubmit = (event: Event) => {
+    const handleFormData = (event: Event) => {
+      const formDataEvent = event as FormDataEvent;
       const pending = pendingGalleryRef.current;
       if (pending.length === 0) {
         return;
       }
-
-      event.preventDefault();
-      const formData = new FormData(form as HTMLFormElement);
-      formData.delete("galleryFiles");
-      pending.forEach((item) => formData.append("galleryFiles", item.file));
-      void savePackageAction(formData);
+      formDataEvent.formData.delete("galleryFiles");
+      pending.forEach((item) => formDataEvent.formData.append("galleryFiles", item.file));
     };
 
-    form.addEventListener("submit", handleSubmit);
-    return () => form.removeEventListener("submit", handleSubmit);
+    form.addEventListener("formdata", handleFormData);
+    return () => form.removeEventListener("formdata", handleFormData);
   }, []);
 
   const addGalleryFiles = (files: File[]) => {

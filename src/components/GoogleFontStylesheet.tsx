@@ -1,7 +1,9 @@
-"use client";
+import {
+  collectGoogleFontsFromFamilies,
+  googleFontsStylesheetUrl,
+} from "@/lib/font-face";
 
-import { collectGoogleFontsFromFamilies, googleFontsStylesheetUrl } from "@/lib/google-fonts";
-
+/** Server-friendly font stylesheet link (also usable from client without the Google name catalog). */
 export function GoogleFontStylesheet({ families }: { families: string[] }) {
   const href = googleFontsStylesheetUrl(collectGoogleFontsFromFamilies(families));
   if (!href) {

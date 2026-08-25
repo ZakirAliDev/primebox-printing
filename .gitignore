@@ -24,6 +24,7 @@
 *.pem
 .superpowers/
 /primebox-printing/
+.data/
 
 # debug
 npm-debug.log*

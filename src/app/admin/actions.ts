@@ -2,18 +2,28 @@
 
 import { redirect } from "next/navigation";
 import { loginAdmin, logoutAdmin, requireAdmin } from "@/lib/admin-auth";
-import { slugify } from "@/lib/catalog";
-import { saveCategoryImage } from "@/lib/category-media";
 import {
+  normalizeCategory,
   normalizeCategoryPaginationStyle,
   normalizeCategorySidebarPosition,
   normalizeExtraContentAlign,
-  type ProductFaq,
+  normalizePackage,
+  slugify,
+  type Package,
   type ProductTab,
   type SiteSettings,
   type TabSource,
   type TabTemplate,
 } from "@/lib/catalog";
+import {
+  categoryPreviewUrl,
+  packagePreviewUrl,
+  saveCategoryPreview,
+  savePackagePreview,
+} from "@/lib/admin-preview";
+import { saveCategoryImage } from "@/lib/category-media";
+import { faqsFromFormData } from "@/lib/product-faqs";
+import { saveProductImage, saveProductImages } from "@/lib/product-media";
 import { parseLayoutJson } from "@/lib/template-layout";
 import {
   deleteAttribute,
@@ -39,11 +49,12 @@ import {
   setCategoryProducts,
   upsertCategoryPageSettings,
   upsertPackage,
+  importPackages,
   upsertProductPageSettings,
   upsertTag,
   upsertTabTemplate,
 } from "@/lib/catalog-store";
-import { saveProductImage, saveProductImages } from "@/lib/product-media";
+import { packagesToCsv, parseProductCsv, resolveCategorySlugs } from "@/lib/product-csv";
 
 
 export async function loginAction(formData: FormData) {
@@ -63,21 +74,18 @@ export async function logoutAction() {
 export async function saveCategoryAction(formData: FormData) {
   await requireAdmin();
   const originalSlug = String(formData.get("originalSlug") ?? "");
-  const slug = slugify(String(formData.get("slug") ?? "") || String(formData.get("name") ?? ""));
-  const imageFile = formData.get("imageFile");
-  const uploadedImage =
-    imageFile instanceof File && imageFile.size ? await saveCategoryImage(slug, imageFile) : "";
+  const draft = await buildCategoryDraftFromForm(formData);
   const saved = await upsertCategory({
     originalSlug: originalSlug || undefined,
-    slug: String(formData.get("slug") ?? ""),
-    name: String(formData.get("name") ?? ""),
-    summary: String(formData.get("summary") ?? ""),
-    description: String(formData.get("description") ?? ""),
-    cardSupportingText: String(formData.get("cardSupportingText") ?? ""),
-    image: uploadedImage || String(formData.get("image") ?? ""),
-    parentSlug: String(formData.get("parentSlug") ?? ""),
+    slug: draft.slug,
+    name: draft.name,
+    summary: draft.summary,
+    description: draft.description,
+    cardSupportingText: draft.cardSupportingText,
+    image: draft.image,
+    parentSlug: draft.parentSlug,
   });
-  await setCategoryProducts(saved.slug, formData.getAll("productSlugs").map(String).filter(Boolean));
+  await setCategoryProducts(saved.slug, draft.productSlugs);
   redirect(`/admin/products/categories/${saved.slug}?${originalSlug ? "updated" : "created"}=1`);
 }
 
@@ -102,6 +110,61 @@ export async function bulkDeleteCategoriesAction(formData: FormData) {
 
 export async function savePackageAction(formData: FormData) {
   await requireAdmin();
+  const draft = await buildPackageDraftFromForm(formData);
+  const originalSlug = String(formData.get("originalSlug") ?? "");
+  const saved = await upsertPackage({
+    originalSlug: originalSlug || undefined,
+    ...draft,
+  });
+  redirect(`/admin/products/${saved.slug}?${originalSlug ? "updated" : "created"}=1`);
+}
+
+export async function previewPackageAction(formData: FormData) {
+  await requireAdmin();
+  try {
+    const draft = await buildPackageDraftFromForm(formData);
+    if (!draft.slug || !draft.name.trim()) {
+      return { error: "Add a product title before previewing." };
+    }
+    const preview = await savePackagePreview(normalizePackage(draft));
+    return { url: packagePreviewUrl(preview.slug, preview.token) };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Could not create preview." };
+  }
+}
+
+export async function previewCategoryAction(formData: FormData) {
+  await requireAdmin();
+  try {
+    const draft = await buildCategoryDraftFromForm(formData);
+    if (!draft.slug || !draft.name.trim()) {
+      return { error: "Add a category title before previewing." };
+    }
+    const preview = await saveCategoryPreview(normalizeCategory(draft), draft.productSlugs);
+    return { url: categoryPreviewUrl(preview.slug, preview.token) };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Could not create preview." };
+  }
+}
+
+async function buildCategoryDraftFromForm(formData: FormData) {
+  const slug = slugify(String(formData.get("slug") ?? "") || String(formData.get("name") ?? ""));
+  const imageFile = formData.get("imageFile");
+  const uploadedImage =
+    imageFile instanceof File && imageFile.size ? await saveCategoryImage(slug, imageFile) : "";
+  return {
+    slug,
+    name: String(formData.get("name") ?? ""),
+    summary: String(formData.get("summary") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    cardSupportingText: String(formData.get("cardSupportingText") ?? ""),
+    image: uploadedImage || String(formData.get("image") ?? ""),
+    parentSlug: String(formData.get("parentSlug") ?? ""),
+    productSlugs: formData.getAll("productSlugs").map(String).filter(Boolean),
+  };
+}
+
+async function buildPackageDraftFromForm(formData: FormData) {
   const originalSlug = String(formData.get("originalSlug") ?? "");
   const slug = slugify(String(formData.get("slug") ?? "") || String(formData.get("name") ?? ""));
   const imageFile = formData.get("imageFile");
@@ -111,18 +174,16 @@ export async function savePackageAction(formData: FormData) {
   const uploadedImage =
     imageFile instanceof File && imageFile.size ? await saveProductImage(slug, imageFile) : "";
   const uploadedGallery = await saveProductImages(slug, galleryFiles);
-  const questions = formData.getAll("faqQuestion").map(String);
-  const answers = formData.getAll("faqAnswer").map(String);
   const { tabTemplates: library, packages, productPageSettings } = await readCatalog();
   const tabsOverride = String(formData.get("tabsOverride") ?? "") === "1";
   const faqsOverride = String(formData.get("faqsOverride") ?? "") === "1";
   const extraContentOverride = String(formData.get("extraContentOverride") ?? "") === "1";
   const existing = packages.find((item) => item.slug === (originalSlug || slug));
   const useGlobalTabs = productPageSettings.globalTabsEnabled && !tabsOverride;
-  const useGlobalFaqs = productPageSettings.globalFaqsEnabled && !faqsOverride;
   const useGlobalExtra = productPageSettings.globalExtraContentEnabled && !extraContentOverride;
-  const saved = await upsertPackage({
-    originalSlug: originalSlug || undefined,
+  const formFaqs = faqsFromFormData(formData);
+  const hasFaqsField = formData.has("faqsJson");
+  const draft: Package = {
     slug,
     name: String(formData.get("name") ?? ""),
     summary: String(formData.get("summary") ?? ""),
@@ -132,24 +193,17 @@ export async function savePackageAction(formData: FormData) {
     categorySlugs: formData.getAll("categorySlugs").map(String),
     relatedMode: String(formData.get("relatedMode") ?? "") === "manual" ? "manual" : "category",
     relatedSlugs: formData.getAll("relatedSlugs").map(String).filter(Boolean),
-    faqs: useGlobalFaqs ? (existing?.faqs ?? []) : faqsFromForm(questions, answers),
-    faqsEnabled: String(formData.get("faqsEnabled") ?? "") === "1",
+    faqs: hasFaqsField ? formFaqs : (existing?.faqs ?? []),
+    faqsEnabled: formData.has("faqsEnabled")
+      ? String(formData.get("faqsEnabled") ?? "") === "1"
+      : (existing?.faqsEnabled ?? true),
     faqsOverride: productPageSettings.globalFaqsEnabled ? faqsOverride : false,
     extraContent: useGlobalExtra ? (existing?.extraContent ?? "") : String(formData.get("extraContent") ?? ""),
     extraContentOverride: productPageSettings.globalExtraContentEnabled ? extraContentOverride : false,
     tabs: useGlobalTabs ? (existing?.tabs ?? []) : tabsFromForm(formData, library),
     tabsOverride: productPageSettings.globalTabsEnabled ? tabsOverride : false,
-  });
-  redirect(`/admin/products/${saved.slug}?${originalSlug ? "updated" : "created"}=1`);
-}
-
-function faqsFromForm(questions: string[], answers: string[]): ProductFaq[] {
-  return questions
-    .map((question, index) => ({
-      question: question.trim(),
-      answer: (answers[index] ?? "").trim(),
-    }))
-    .filter((faq) => faq.question && faq.answer);
+  };
+  return draft;
 }
 
 function tabsFromForm(formData: FormData, library: TabTemplate[]): ProductTab[] {
@@ -175,13 +229,11 @@ function tabsFromForm(formData: FormData, library: TabTemplate[]): ProductTab[] 
 export async function saveProductPageSettingsAction(formData: FormData) {
   await requireAdmin();
   const { tabTemplates: library, productPageSettings } = await readCatalog();
-  const questions = formData.getAll("faqQuestion").map(String);
-  const answers = formData.getAll("faqAnswer").map(String);
   await upsertProductPageSettings({
     globalTabsEnabled: productPageSettings.globalTabsEnabled,
     globalTabs: tabsFromForm(formData, library),
     globalFaqsEnabled: productPageSettings.globalFaqsEnabled,
-    globalFaqs: faqsFromForm(questions, answers),
+    globalFaqs: faqsFromFormData(formData),
     globalExtraContentEnabled: productPageSettings.globalExtraContentEnabled,
     globalExtraContent: String(formData.get("extraContent") ?? ""),
     extraContentAlign: normalizeExtraContentAlign(formData.get("extraContentAlign")),
@@ -392,4 +444,54 @@ export async function bulkDeleteReviewsAction(formData: FormData) {
   }
   await deleteReviews(ids);
   redirect("/admin/products/reviews?deleted=1");
+}
+
+const MAX_CSV_CHARS = 2_000_000;
+
+export async function previewProductCsvAction(csv: string) {
+  await requireAdmin();
+  if (!csv.trim()) {
+    throw new Error("Choose a CSV file.");
+  }
+  if (csv.length > MAX_CSV_CHARS) {
+    throw new Error("CSV is too large. Keep it under 2MB.");
+  }
+  const { packages, categories } = await readCatalog();
+  const parsed = parseProductCsv(csv);
+  const existing = new Set(packages.map((item) => item.slug));
+  return {
+    headers: parsed.headers,
+    issues: parsed.issues,
+    rows: parsed.rows.map((row) => {
+      const categoriesResolved = resolveCategorySlugs(row.categoryValues, categories);
+      return {
+        ...row,
+        exists: existing.has(row.slug),
+        categorySlugs: categoriesResolved.slugs,
+        unknownCategories: categoriesResolved.unknown,
+      };
+    }),
+  };
+}
+
+export async function importProductCsvAction(
+  csv: string,
+  options: { updateExisting: boolean; downloadImages: boolean },
+) {
+  await requireAdmin();
+  if (!csv.trim()) {
+    throw new Error("Choose a CSV file.");
+  }
+  if (csv.length > MAX_CSV_CHARS) {
+    throw new Error("CSV is too large. Keep it under 2MB.");
+  }
+  const parsed = parseProductCsv(csv);
+  return importPackages(parsed.rows, options);
+}
+
+export async function exportProductsCsvAction() {
+  await requireAdmin();
+  const { packages, categories } = await readCatalog();
+  const names = Object.fromEntries(categories.map((item) => [item.slug, item.name]));
+  return packagesToCsv(packages, names);
 }

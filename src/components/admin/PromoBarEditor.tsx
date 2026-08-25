@@ -112,7 +112,7 @@ export function PromoBarEditor({
             <span>Autoplay</span>
           </label>
           <label className="flex items-center gap-2 text-sm text-navy">
-            <span className="text-navy/70">Interval (ms)</span>
+            <span className="text-navy/70">Interval</span>
             <input
               type="number"
               min={PROMO_BAR_AUTOPLAY_MIN}
@@ -128,6 +128,7 @@ export function PromoBarEditor({
                 })
               }
             />
+            <span className="text-navy/70">(ms)</span>
           </label>
         </div>
 

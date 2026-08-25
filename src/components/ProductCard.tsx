@@ -43,7 +43,7 @@ export function ProductCard({
       </div>
       <div className="p-4">
         <h3 className="line-clamp-2 font-semibold leading-snug">{item.name}</h3>
-        <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-navy/70">{item.summary}</p>
+        <p className="mt-1.5 line-clamp-2 leading-snug text-navy/70">{item.summary}</p>
       </div>
     </Link>
   );

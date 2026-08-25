@@ -6,7 +6,10 @@ import { ColorSchemeEditor } from "@/components/admin/ColorSchemeEditor";
 import { HeroCarouselEditor } from "@/components/admin/HeroCarouselEditor";
 import { PromoBarEditor } from "@/components/admin/PromoBarEditor";
 import { ShopByIndustryEditor } from "@/components/admin/ShopByIndustryEditor";
+import { FeaturedCategoryEditor } from "@/components/admin/FeaturedCategoryEditor";
+import { TestimonialsEditor } from "@/components/admin/TestimonialsEditor";
 import { TrustBarEditor } from "@/components/admin/TrustBarEditor";
+import { TypographyEditor } from "@/components/admin/TypographyEditor";
 import { AdminToast } from "@/components/admin/AdminNotice";
 import { adminBox, adminBoxHead, adminGhost, adminMuted } from "@/components/admin/ui";
 import { LOGO_HEIGHT_MAX, LOGO_HEIGHT_MIN, type Category, type SiteSettings } from "@/lib/catalog";
@@ -22,17 +25,34 @@ import {
   type ShopByIndustrySettings,
 } from "@/lib/shop-by-industry";
 import {
+  DEFAULT_FEATURED_CATEGORY_SETTINGS,
+  normalizeFeaturedCategorySettings,
+  type FeaturedCategorySettings,
+} from "@/lib/featured-category";
+import {
+  DEFAULT_HOME_TESTIMONIALS_SETTINGS,
+  normalizeHomeTestimonialsSettings,
+  type HomeTestimonialsSettings,
+} from "@/lib/home-testimonials";
+import {
   DEFAULT_TRUST_BAR_SETTINGS,
   normalizeTrustBarSettings,
   type TrustBarSettings,
 } from "@/lib/trust-bar";
 import {
   DEFAULT_COLOR_SCHEME,
+  DEFAULT_LINK_TRANSITION_MS,
   applyLinkedColor,
   normalizeHexColor,
+  normalizeLinkTransitionMs,
   resolveColorScheme,
   type ColorScheme,
 } from "@/lib/color-scheme";
+import {
+  DEFAULT_SITE_TYPOGRAPHY,
+  normalizeSiteTypography,
+  type SiteTypographySettings,
+} from "@/lib/site-typography";
 
 type SettingsTab = "global" | "home";
 
@@ -62,29 +82,25 @@ function LogoPlacement({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm text-navy">
-        <span className="w-14">{label}</span>
-        <Switch checked={checked} disabled={disabled} label={`Use logo in ${label.toLowerCase()}`} onToggle={onToggle} />
+    <div className="flex flex-wrap items-center gap-2 text-sm text-navy">
+      <span className="w-14 shrink-0">{label}</span>
+      <Switch checked={checked} disabled={disabled} label={`Use logo in ${label.toLowerCase()}`} onToggle={onToggle} />
+      <span className="text-xs text-navy/55">Size</span>
+      <div className="min-w-[72px] flex-1">
+        <input
+          type="range"
+          min={LOGO_HEIGHT_MIN}
+          max={LOGO_HEIGHT_MAX}
+          value={height}
+          disabled={disabled}
+          aria-label={`${label} logo height`}
+          className="inspector-range w-full"
+          onChange={(event) => setHeight(event.target.value)}
+          onPointerUp={(event) => onHeightCommit(Number(event.currentTarget.value))}
+          onKeyUp={(event) => onHeightCommit(Number(event.currentTarget.value))}
+        />
       </div>
-      <div className="flex items-center gap-2">
-        <span className="w-14 text-xs text-navy/55">Size</span>
-        <div className="w-[40%]">
-          <input
-            type="range"
-            min={LOGO_HEIGHT_MIN}
-            max={LOGO_HEIGHT_MAX}
-            value={height}
-            disabled={disabled}
-            aria-label={`${label} logo height`}
-            className="inspector-range"
-            onChange={(event) => setHeight(event.target.value)}
-            onPointerUp={(event) => onHeightCommit(Number(event.currentTarget.value))}
-            onKeyUp={(event) => onHeightCommit(Number(event.currentTarget.value))}
-          />
-        </div>
-        <span className="w-12 text-right text-xs tabular-nums text-navy">{height}px</span>
-      </div>
+      <span className="w-12 shrink-0 text-right text-xs tabular-nums text-navy">{height}px</span>
     </div>
   );
 }
@@ -142,6 +158,12 @@ export function SiteSettingsForm({
   const savedHeaderHeight = useRef(settings.logoHeaderHeight);
   const savedFooterHeight = useRef(settings.logoFooterHeight);
   const [colors, setColors] = useState<ColorScheme>(() => resolveColorScheme(settings.colors));
+  const [linkTransitionMs, setLinkTransitionMs] = useState(() =>
+    normalizeLinkTransitionMs(settings.linkTransitionMs),
+  );
+  const [typography, setTypography] = useState<SiteTypographySettings>(() =>
+    normalizeSiteTypography(settings.typography),
+  );
   const [hero, setHero] = useState<HeroSettings>(() => normalizeHeroSettings(settings.hero));
   const [promoBar, setPromoBar] = useState<PromoBarSettings>(() =>
     normalizePromoBarSettings(settings.promoBar),
@@ -149,9 +171,19 @@ export function SiteSettingsForm({
   const [shopByIndustry, setShopByIndustry] = useState<ShopByIndustrySettings>(() =>
     normalizeShopByIndustrySettings(settings.shopByIndustry),
   );
+  const [featuredCategory, setFeaturedCategory] = useState<FeaturedCategorySettings>(() =>
+    normalizeFeaturedCategorySettings(settings.featuredCategory),
+  );
+  const [testimonials, setTestimonials] = useState<HomeTestimonialsSettings>(() =>
+    normalizeHomeTestimonialsSettings(settings.testimonials),
+  );
+  const testimonialsRef = useRef(testimonials);
+  testimonialsRef.current = testimonials;
   const [trustBar, setTrustBar] = useState<TrustBarSettings>(() =>
     normalizeTrustBarSettings(settings.trustBar),
   );
+  const trustBarRef = useRef(trustBar);
+  trustBarRef.current = trustBar;
   const [tab, setTab] = useState<SettingsTab>("global");
   const [busy, setBusy] = useState<
     | "favicon"
@@ -160,9 +192,12 @@ export function SiteSettingsForm({
     | "header"
     | "footer"
     | "colors"
+    | "typography"
     | "hero"
     | "promoBar"
     | "shopByIndustry"
+    | "featuredCategory"
+    | "testimonials"
     | "trustBar"
     | ""
   >("");
@@ -269,13 +304,42 @@ export function SiteSettingsForm({
   };
 
   const saveColors = () => {
-    void save({ colors }, "colors", () => setColors(settings.colors));
+    const transition = normalizeLinkTransitionMs(linkTransitionMs);
+    setLinkTransitionMs(transition);
+    void save({ colors, linkTransitionMs: transition }, "colors", () => {
+      setColors(settings.colors);
+      setLinkTransitionMs(normalizeLinkTransitionMs(settings.linkTransitionMs));
+    });
   };
 
   const resetColors = () => {
-    const previous = colors;
+    const previousColors = colors;
+    const previousTransition = linkTransitionMs;
     setColors(DEFAULT_COLOR_SCHEME);
-    void save({ colors: DEFAULT_COLOR_SCHEME }, "colors", () => setColors(previous));
+    setLinkTransitionMs(DEFAULT_LINK_TRANSITION_MS);
+    void save(
+      { colors: DEFAULT_COLOR_SCHEME, linkTransitionMs: DEFAULT_LINK_TRANSITION_MS },
+      "colors",
+      () => {
+        setColors(previousColors);
+        setLinkTransitionMs(previousTransition);
+      },
+    );
+  };
+
+  const saveTypography = () => {
+    const next = normalizeSiteTypography(typography);
+    setTypography(next);
+    void save({ typography: next }, "typography", () =>
+      setTypography(normalizeSiteTypography(settings.typography)),
+    );
+  };
+
+  const resetTypography = () => {
+    const previous = typography;
+    const next = normalizeSiteTypography(DEFAULT_SITE_TYPOGRAPHY);
+    setTypography(next);
+    void save({ typography: next }, "typography", () => setTypography(previous));
   };
 
   const saveHero = () => {
@@ -321,8 +385,70 @@ export function SiteSettingsForm({
     void save({ shopByIndustry: next }, "shopByIndustry", () => setShopByIndustry(previous));
   };
 
+  const saveFeaturedCategory = () => {
+    const next = normalizeFeaturedCategorySettings(featuredCategory);
+    setFeaturedCategory(next);
+    void save({ featuredCategory: next }, "featuredCategory", () =>
+      setFeaturedCategory(normalizeFeaturedCategorySettings(settings.featuredCategory)),
+    );
+  };
+
+  const resetFeaturedCategory = () => {
+    const previous = featuredCategory;
+    const next = normalizeFeaturedCategorySettings(DEFAULT_FEATURED_CATEGORY_SETTINGS);
+    setFeaturedCategory(next);
+    void save({ featuredCategory: next }, "featuredCategory", () => setFeaturedCategory(previous));
+  };
+
+  const saveTestimonials = () => {
+    const next = normalizeHomeTestimonialsSettings(testimonialsRef.current);
+    setTestimonials(next);
+    void save({ testimonials: next }, "testimonials", () =>
+      setTestimonials(normalizeHomeTestimonialsSettings(settings.testimonials)),
+    );
+  };
+
+  const resetTestimonials = () => {
+    const previous = testimonialsRef.current;
+    const next = normalizeHomeTestimonialsSettings(DEFAULT_HOME_TESTIMONIALS_SETTINGS);
+    setTestimonials(next);
+    void save({ testimonials: next }, "testimonials", () => setTestimonials(previous));
+  };
+
+  const uploadTestimonialStarIcon = async (file: File) => {
+    if (busy) {
+      return;
+    }
+    setBusy("testimonials");
+    try {
+      const data = new FormData();
+      data.set("slug", "testimonials");
+      data.set("file", file);
+      const response = await fetch("/admin/api/media", { method: "POST", body: data });
+      const payload = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !payload.url) {
+        throw new Error(payload.error || "Upload failed.");
+      }
+      const next = normalizeHomeTestimonialsSettings({
+        ...testimonialsRef.current,
+        starIcon: payload.url,
+      });
+      await patchSiteSettingsAction({ testimonials: next });
+      setTestimonials(next);
+      testimonialsRef.current = next;
+      setNotice({ id: Date.now(), text: "Star icon saved." });
+    } catch (error) {
+      setNotice({
+        id: Date.now(),
+        text: error instanceof Error ? error.message : "Upload failed.",
+      });
+    } finally {
+      setBusy("");
+    }
+  };
+
   const saveTrustBar = () => {
-    const next = normalizeTrustBarSettings(trustBar);
+    const next = normalizeTrustBarSettings(trustBarRef.current);
     setTrustBar(next);
     void save({ trustBar: next }, "trustBar", () =>
       setTrustBar(normalizeTrustBarSettings(settings.trustBar)),
@@ -330,7 +456,7 @@ export function SiteSettingsForm({
   };
 
   const resetTrustBar = () => {
-    const previous = trustBar;
+    const previous = trustBarRef.current;
     const next = normalizeTrustBarSettings(DEFAULT_TRUST_BAR_SETTINGS);
     setTrustBar(next);
     void save({ trustBar: next }, "trustBar", () => setTrustBar(previous));
@@ -353,23 +479,30 @@ export function SiteSettingsForm({
       if (!response.ok || !payload.url) {
         throw new Error(payload.error || "Upload failed.");
       }
-      setTrustBar((current) => {
-        if (target.kind === "still") {
-          const stills: TrustBarSettings["stills"] = [...current.stills];
-          stills[target.index] = { ...stills[target.index], image: payload.url as string };
-          return { ...current, stills };
-        }
-        return {
-          ...current,
-          carousel: {
-            ...current.carousel,
-            slides: current.carousel.slides.map((slide, slideIndex) =>
-              slideIndex === target.index ? { ...slide, image: payload.url as string } : slide,
-            ),
-          },
-        };
-      });
-      setNotice({ id: Date.now(), text: "Image uploaded. Save to apply." });
+      const url = payload.url;
+      const current = trustBarRef.current;
+      const withImage: TrustBarSettings =
+        target.kind === "still"
+          ? {
+              ...current,
+              stills: current.stills.map((item, index) =>
+                index === target.index ? { ...item, image: url } : item,
+              ) as TrustBarSettings["stills"],
+            }
+          : {
+              ...current,
+              carousel: {
+                ...current.carousel,
+                slides: current.carousel.slides.map((slide, slideIndex) =>
+                  slideIndex === target.index ? { ...slide, image: url } : slide,
+                ),
+              },
+            };
+      const next = normalizeTrustBarSettings(withImage);
+      await patchSiteSettingsAction({ trustBar: next });
+      setTrustBar(next);
+      trustBarRef.current = next;
+      setNotice({ id: Date.now(), text: "Image saved." });
     } catch (error) {
       setNotice({
         id: Date.now(),
@@ -453,22 +586,11 @@ export function SiteSettingsForm({
       </div>
 
       {tab === "global" ? (
-        <div className="flex items-start gap-5">
-          <div className="min-w-0 flex-1 space-y-4">
-            <PromoBarEditor
-              promoBar={promoBar}
-              busy={busy === "promoBar"}
-              onChange={setPromoBar}
-              onSave={savePromoBar}
-              onReset={resetPromoBar}
-            />
-          </div>
-
-          <aside className="sticky top-6 z-10 w-[300px] shrink-0 space-y-4 self-start">
-
-          <div className={adminBox}>
-            <h2 className={adminBoxHead}>Brand identity</h2>
-            <div className="space-y-5 p-3">
+        <div className="space-y-4">
+          <div className="grid items-start gap-4 lg:grid-cols-2">
+            <div className={adminBox}>
+              <h2 className={adminBoxHead}>Brand identity</h2>
+              <div className="space-y-5 p-3">
               <div className="space-y-3">
                 <div>
                   <p className="text-sm font-medium text-navy">Favicon</p>
@@ -682,16 +804,30 @@ export function SiteSettingsForm({
               </div>
             </div>
           </div>
-
           <ColorSchemeEditor
             colors={colors}
+            linkTransitionMs={linkTransitionMs}
             busy={busy === "colors"}
             onChange={setColor}
+            onTransitionChange={setLinkTransitionMs}
             onSave={saveColors}
             onReset={resetColors}
           />
-        
-          </aside>
+          </div>
+          <TypographyEditor
+            typography={typography}
+            busy={busy === "typography"}
+            onChange={setTypography}
+            onSave={saveTypography}
+            onReset={resetTypography}
+          />
+          <PromoBarEditor
+            promoBar={promoBar}
+            busy={busy === "promoBar"}
+            onChange={setPromoBar}
+            onSave={savePromoBar}
+            onReset={resetPromoBar}
+          />
         </div>
       ) : (
         <div className="space-y-4">
@@ -721,6 +857,24 @@ export function SiteSettingsForm({
             onChange={setShopByIndustry}
             onSave={saveShopByIndustry}
             onReset={resetShopByIndustry}
+          />
+
+          <FeaturedCategoryEditor
+            settings={featuredCategory}
+            categories={categories}
+            busy={busy === "featuredCategory"}
+            onChange={setFeaturedCategory}
+            onSave={saveFeaturedCategory}
+            onReset={resetFeaturedCategory}
+          />
+
+          <TestimonialsEditor
+            settings={testimonials}
+            busy={busy === "testimonials"}
+            onChange={setTestimonials}
+            onSave={saveTestimonials}
+            onReset={resetTestimonials}
+            onUploadStarIcon={(file) => void uploadTestimonialStarIcon(file)}
           />
         </div>
       )}

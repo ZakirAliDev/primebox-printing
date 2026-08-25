@@ -1,5 +1,5 @@
 import { normalizeHexColor } from "./color-scheme.ts";
-import { isGoogleFont, isSiteFont, sanitizeFontFamily } from "./google-fonts.ts";
+import { isSiteFont, sanitizeFontFamily } from "./font-face.ts";
 
 export type HeroSlide = {
   id: string;
@@ -142,7 +142,7 @@ function normalizeCustomFonts(input: unknown, usedFamilies: string[]): string[] 
   const seen = new Set<string>();
   const fonts: string[] = [];
   for (const name of names) {
-    if (!name || isSiteFont(name) || isGoogleFont(name)) {
+    if (!name || isSiteFont(name)) {
       continue;
     }
     const key = name.toLowerCase();

@@ -32,6 +32,7 @@ export function ProductForm({
       <AdminPublishActions
         isNew={isNew}
         formId="product-save"
+        previewKind="package"
         trash={
           product ? (
             <form action={deletePackageAction}>

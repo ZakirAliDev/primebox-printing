@@ -1,16 +1,21 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { deleteCategoryUploads, saveCategoryImage } from "@/lib/category-media";
 import type { Catalog, Category, CategoryPageSettings, Package, ProductAttribute, ProductFaq, ProductPageSettings, ProductTab, RelatedMode, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
 import { layoutToHtml } from "@/lib/template-layout";
 import { DEFAULT_TAB_TEMPLATES, isCategoryParentInvalid, normalizeCategory, normalizeCategoryPageSettings, normalizePackage, normalizeProductPageSettings, normalizeSiteSettings, normalizeTabTemplate, slugify } from "@/lib/catalog";
-import { deleteProductUploads } from "@/lib/product-media";
+import { deleteProductUploads, saveRemoteProductImage } from "@/lib/product-media";
+import { resolveCategorySlugs, type ProductCsvRow } from "@/lib/product-csv";
 
 const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
 
-export async function readCatalog(): Promise<Catalog> {
-  const raw = await fs.readFile(catalogPath, "utf8");
+type CatalogMemo = { mtimeMs: number; catalog: Catalog };
+
+let catalogMemo: CatalogMemo | null = null;
+
+function parseCatalog(raw: string): Catalog {
   const data = JSON.parse(raw) as Partial<Catalog>;
   return {
     categories: (data.categories ?? []).map((item) => normalizeCategory(item as Category)),
@@ -25,8 +30,22 @@ export async function readCatalog(): Promise<Catalog> {
   };
 }
 
+async function loadCatalogFromDisk(): Promise<Catalog> {
+  const [raw, stats] = await Promise.all([fs.readFile(catalogPath, "utf8"), fs.stat(catalogPath)]);
+  if (catalogMemo && catalogMemo.mtimeMs === stats.mtimeMs) {
+    return catalogMemo.catalog;
+  }
+  const catalog = parseCatalog(raw);
+  catalogMemo = { mtimeMs: stats.mtimeMs, catalog };
+  return catalog;
+}
+
+/** Dedupes within a request; mtime memo avoids re-parsing across requests until writes. */
+export const readCatalog = cache(loadCatalogFromDisk);
+
 async function writeCatalog(catalog: Catalog) {
   await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
+  catalogMemo = null;
   revalidatePath("/", "layout");
 }
 
@@ -162,6 +181,104 @@ export async function upsertPackage(input: {
   catalog.packages.push(next);
   await writeCatalog(catalog);
   return next;
+}
+
+export type PackageImportRowResult = {
+  line: number;
+  slug: string;
+  name: string;
+  action: "created" | "updated" | "skipped" | "error";
+  message: string;
+};
+
+export async function importPackages(
+  rows: ProductCsvRow[],
+  options: { updateExisting: boolean; downloadImages: boolean },
+): Promise<PackageImportRowResult[]> {
+  const catalog = await readCatalog();
+  const results: PackageImportRowResult[] = [];
+
+  const resolveImages = async (slug: string, urls: string[]) => {
+    const next: string[] = [];
+    for (const url of urls) {
+      if (!url) {
+        continue;
+      }
+      if (url.startsWith("/") && !url.startsWith("//")) {
+        next.push(url);
+        continue;
+      }
+      if (!options.downloadImages) {
+        next.push(url);
+        continue;
+      }
+      try {
+        next.push(await saveRemoteProductImage(slug, url));
+      } catch {
+        next.push(url);
+      }
+    }
+    return next;
+  };
+
+  for (const row of rows) {
+    if (row.skip) {
+      results.push({ line: row.line, slug: row.slug, name: row.name, action: "skipped", message: row.skip });
+      continue;
+    }
+    const existing = catalog.packages.find((item) => item.slug === row.slug);
+    if (existing && !options.updateExisting) {
+      results.push({
+        line: row.line,
+        slug: row.slug,
+        name: row.name,
+        action: "skipped",
+        message: "A product with this slug already exists.",
+      });
+      continue;
+    }
+    const categories = resolveCategorySlugs(row.categoryValues, catalog.categories);
+    const imageList = await resolveImages(row.slug, [row.image, ...row.gallery].filter(Boolean));
+    const image = row.has.image ? (imageList[0] ?? (existing?.image ?? "")) : (existing?.image ?? imageList[0] ?? "");
+    const gallery = row.has.gallery
+      ? imageList.slice(image && imageList[0] === image ? 1 : 0)
+      : (existing?.gallery ?? imageList.slice(1));
+    const next: Package = {
+      slug: row.slug,
+      name: row.name.trim(),
+      summary: row.has.summary ? row.summary : (existing?.summary ?? ""),
+      body: row.has.body ? row.body : (existing?.body ?? ""),
+      image,
+      gallery,
+      categorySlugs: row.has.categories ? categories.slugs : (existing?.categorySlugs ?? []),
+      relatedMode: row.has.relatedMode ? row.relatedMode : (existing?.relatedMode ?? "category"),
+      relatedSlugs: row.has.relatedSlugs ? row.relatedSlugs : (existing?.relatedSlugs ?? []),
+      faqs: existing?.faqs ?? [],
+      faqsEnabled: existing?.faqsEnabled ?? true,
+      faqsOverride: existing?.faqsOverride ?? false,
+      extraContent: row.has.extraContent ? row.extraContent : (existing?.extraContent ?? ""),
+      extraContentOverride: existing?.extraContentOverride ?? false,
+      tabs: existing?.tabs ?? [],
+      tabsOverride: existing?.tabsOverride ?? false,
+    };
+    catalog.packages = catalog.packages.filter((item) => item.slug !== row.slug);
+    catalog.packages.push(next);
+    const unknown = categories.unknown.length
+      ? ` Unknown categories: ${categories.unknown.join(", ")}.`
+      : "";
+    results.push({
+      line: row.line,
+      slug: row.slug,
+      name: row.name,
+      action: existing ? "updated" : "created",
+      message: unknown.trim(),
+    });
+  }
+
+  if (results.some((item) => item.action === "created" || item.action === "updated")) {
+    await writeCatalog(catalog);
+  }
+  return results;
 }
 
 export async function patchPackage(

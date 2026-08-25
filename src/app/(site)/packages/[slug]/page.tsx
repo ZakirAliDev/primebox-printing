@@ -1,20 +1,35 @@
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { Accordion } from "@/components/Accordion";
 import { ContactForm } from "@/components/ContactForm";
-import { ProductDataTabs } from "@/components/ProductDataTabs";
+import { PreviewBanner } from "@/components/PreviewBanner";
 import { ProductFormTabs } from "@/components/ProductFormTabs";
 import { ProductGallery } from "@/components/ProductGallery";
-import { RelatedProductsCarousel } from "@/components/RelatedProductsCarousel";
 import { QuoteForm } from "@/components/QuoteForm";
 import { RichText } from "@/components/RichText";
-import { ShowMoreContent } from "@/components/ShowMoreContent";
+import { readPreview } from "@/lib/admin-preview";
 import { packageCoverImage, relatedPackages, resolveProductExtraContent, resolveProductFaqs, resolveProductTabs } from "@/lib/catalog";
 import { readCatalog } from "@/lib/catalog-store";
 import { plainTextFromHtml } from "@/lib/rich-text";
 
+const ProductDataTabs = dynamic(
+  () => import("@/components/ProductDataTabs").then((mod) => mod.ProductDataTabs),
+  { loading: () => <div className="h-40 rounded-lg bg-navy/[0.03]" aria-hidden="true" /> },
+);
+
+const ShowMoreContent = dynamic(
+  () => import("@/components/ShowMoreContent").then((mod) => mod.ShowMoreContent),
+);
+
+const RelatedProductsCarousel = dynamic(
+  () =>
+    import("@/components/RelatedProductsCarousel").then((mod) => mod.RelatedProductsCarousel),
+  { loading: () => <div className="mt-4 h-64 rounded-lg bg-navy/[0.03]" aria-hidden="true" /> },
+);
+
 type PackagePageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ sent?: string; error?: string }>;
+  searchParams: Promise<{ sent?: string; error?: string; preview?: string }>;
 };
 
 export async function generateStaticParams() {
@@ -22,8 +37,18 @@ export async function generateStaticParams() {
   return packages.map((item) => ({ slug: item.slug }));
 }
 
-export async function generateMetadata({ params }: PackagePageProps) {
+export async function generateMetadata({ params, searchParams }: PackagePageProps) {
   const { slug } = await params;
+  const { preview: previewToken } = await searchParams;
+  if (previewToken) {
+    const preview = await readPreview(previewToken);
+    if (preview?.kind === "package" && preview.slug === slug) {
+      return {
+        title: `${preview.package.name} (Preview)`,
+        description: plainTextFromHtml(preview.package.summary),
+      };
+    }
+  }
   const { packages } = await readCatalog();
   const item = packages.find((entry) => entry.slug === slug);
   return {
@@ -36,7 +61,11 @@ export default async function PackagePage({ params, searchParams }: PackagePageP
   const { slug } = await params;
   const flags = await searchParams;
   const { packages, tabTemplates, productPageSettings } = await readCatalog();
-  const item = packages.find((entry) => entry.slug === slug);
+  const preview =
+    flags.preview ? await readPreview(flags.preview) : null;
+  const previewPackage =
+    preview?.kind === "package" && preview.slug === slug ? preview.package : null;
+  const item = previewPackage ?? packages.find((entry) => entry.slug === slug);
   if (!item) {
     notFound();
   }
@@ -49,6 +78,7 @@ export default async function PackagePage({ params, searchParams }: PackagePageP
 
   return (
     <article className="mx-auto max-w-6xl px-4 py-12">
+      {previewPackage ? <PreviewBanner /> : null}
       {flags.sent ? (
         <p className="mb-6 rounded border border-green-200 bg-green-50 p-3 text-sm">
           Request received. We will contact you shortly.

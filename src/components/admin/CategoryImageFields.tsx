@@ -13,18 +13,18 @@ export function CategoryImageFields({ image = "" }: { image?: string }) {
 
   return (
     <div className={adminBox}>
-      <h2 className={adminBoxHead}>Category image</h2>
+      <h2 className={adminBoxHead}>Home card image</h2>
       <div className="space-y-3 p-3">
         <label className="block cursor-pointer">
           {featuredSrc ? (
             <img src={featuredSrc} alt="" className="aspect-square w-full rounded object-cover bg-navy/5" />
           ) : (
             <div className="flex aspect-square items-center justify-center rounded bg-navy/5 text-xs text-navy/40">
-              No category image
+              No home card image
             </div>
           )}
           {featured ? <input form={FORM_ID} type="hidden" name="image" value={featured} /> : null}
-          <span className={`mt-3 block text-xs ${adminMuted}`}>Set category image</span>
+          <span className={`mt-3 block text-xs ${adminMuted}`}>Shown on Shop by industry cards on the home page.</span>
           <input
             form={FORM_ID}
             type="file"
@@ -46,7 +46,7 @@ export function CategoryImageFields({ image = "" }: { image?: string }) {
               setFeaturedPreview("");
             }}
           >
-            Remove category image
+            Remove image
           </button>
         ) : null}
       </div>

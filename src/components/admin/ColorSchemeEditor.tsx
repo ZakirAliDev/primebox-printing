@@ -1,10 +1,17 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { adminGhost, adminPrimary } from "@/components/admin/ui";
-import { normalizeHexColor, type ColorScheme } from "@/lib/color-scheme";
+import { adminField, adminGhost, adminPrimary } from "@/components/admin/ui";
+import {
+  DEFAULT_LINK_TRANSITION_MS,
+  LINK_TRANSITION_MS_MAX,
+  LINK_TRANSITION_MS_MIN,
+  normalizeHexColor,
+  normalizeLinkTransitionMs,
+  type ColorScheme,
+} from "@/lib/color-scheme";
 
-type RegionId = "brand" | "promo" | "header" | "hero" | "page" | "footer" | "button";
+type RegionId = "brand" | "promo" | "header" | "hero" | "page" | "links" | "footer" | "button";
 
 const REGIONS: {
   id: RegionId;
@@ -62,8 +69,15 @@ const REGIONS: {
       { key: "text", label: "Text" },
       { key: "muted", label: "Muted" },
       { key: "border", label: "Border" },
-      { key: "link", label: "Link" },
       { key: "focus", label: "Focus" },
+    ],
+  },
+  {
+    id: "links",
+    label: "Links",
+    fields: [
+      { key: "link", label: "Text" },
+      { key: "linkHover", label: "Hover" },
     ],
   },
   {
@@ -128,12 +142,24 @@ function AccordionPanel({ open, children }: { open: boolean; children: ReactNode
   );
 }
 
-function RegionPreview({ id, colors }: { id: RegionId; colors: ColorScheme }) {
+function RegionPreview({
+  id,
+  colors,
+  linkTransitionMs,
+}: {
+  id: RegionId;
+  colors: ColorScheme;
+  linkTransitionMs: number;
+}) {
   if (id === "brand") {
     return (
       <span className="flex items-center gap-1">
-        {[colors.primary, colors.onPrimary, colors.accent, colors.onAccent].map((value, index) => (
-          <span key={index} className="h-3.5 w-3.5 rounded-full border border-black/10" style={{ background: value }} />
+        {[colors.primary, colors.onPrimary, colors.accent, colors.onAccent].map((value) => (
+          <span
+            key={value + id}
+            className="h-4 w-4 rounded-full border border-navy/15"
+            style={{ background: value }}
+          />
         ))}
       </span>
     );
@@ -145,7 +171,7 @@ function RegionPreview({ id, colors }: { id: RegionId; colors: ColorScheme }) {
         className="rounded px-2 py-0.5 text-[10px] font-medium"
         style={{ background: colors.headerBar, color: colors.headerBarText }}
       >
-        Promo offer
+        Promo
       </span>
     );
   }
@@ -156,7 +182,7 @@ function RegionPreview({ id, colors }: { id: RegionId; colors: ColorScheme }) {
         className="rounded px-2 py-0.5 text-[10px] font-medium"
         style={{ background: colors.header, color: colors.headerText }}
       >
-        Prime Box
+        Header
       </span>
     );
   }
@@ -191,8 +217,17 @@ function RegionPreview({ id, colors }: { id: RegionId; colors: ColorScheme }) {
       >
         <span style={{ color: colors.muted }}>Muted</span>
         {" · "}
-        <span className="underline" style={{ color: colors.link }}>
-          Link
+        Focus
+      </span>
+    );
+  }
+
+  if (id === "links") {
+    return (
+      <span className="text-[10px] font-medium underline" style={{ color: colors.link }}>
+        Link
+        <span className="ml-1.5 no-underline" style={{ color: colors.linkHover }}>
+          hover · {linkTransitionMs}ms
         </span>
       </span>
     );
@@ -213,14 +248,18 @@ function RegionPreview({ id, colors }: { id: RegionId; colors: ColorScheme }) {
 
 export function ColorSchemeEditor({
   colors,
+  linkTransitionMs,
   busy,
   onChange,
+  onTransitionChange,
   onSave,
   onReset,
 }: {
   colors: ColorScheme;
+  linkTransitionMs: number;
   busy: boolean;
   onChange: (key: keyof ColorScheme, value: string) => void;
+  onTransitionChange: (ms: number) => void;
   onSave: () => void;
   onReset: () => void;
 }) {
@@ -257,32 +296,61 @@ export function ColorSchemeEditor({
               >
                 <span className="w-24 shrink-0 text-sm font-medium text-navy">{item.label}</span>
                 <span className="min-w-0 flex-1">
-                  <RegionPreview id={item.id} colors={colors} />
+                  <RegionPreview id={item.id} colors={colors} linkTransitionMs={linkTransitionMs} />
                 </span>
                 <Chevron open={open} />
               </button>
               <AccordionPanel open={open}>
-                <ul className="grid grid-cols-[auto_auto_auto] items-center justify-start gap-x-1.5 gap-y-2 bg-navy/[0.03] px-3 py-3">
-                  {item.fields.map((field) => (
-                    <li key={field.key} className="contents">
-                      <span className="text-xs text-navy">{field.label}</span>
-                      <Swatch
-                        value={colors[field.key]}
-                        disabled={busy}
-                        onChange={(value) => paint(field.key, value)}
-                      />
-                      <input
-                        key={`${field.key}-${colors[field.key]}`}
-                        type="text"
-                        defaultValue={colors[field.key]}
-                        disabled={busy}
-                        spellCheck={false}
-                        className="w-[4.75rem] rounded border border-navy/20 bg-white px-1.5 py-0.5 font-mono text-[10px] text-navy outline-none focus:border-navy"
-                        onBlur={(event) => paint(field.key, event.target.value)}
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <div className="space-y-3 bg-navy/[0.03] px-3 py-3">
+                  <ul className="grid grid-cols-[auto_auto_auto] items-center justify-start gap-x-1.5 gap-y-2">
+                    {item.fields.map((field) => (
+                      <li key={field.key} className="contents">
+                        <span className="text-xs text-navy">{field.label}</span>
+                        <Swatch
+                          value={colors[field.key]}
+                          disabled={busy}
+                          onChange={(value) => paint(field.key, value)}
+                        />
+                        <input
+                          key={`${field.key}-${colors[field.key]}`}
+                          type="text"
+                          defaultValue={colors[field.key]}
+                          disabled={busy}
+                          spellCheck={false}
+                          className="w-[4.75rem] rounded border border-navy/20 bg-white px-1.5 py-0.5 font-mono text-[10px] text-navy outline-none focus:border-navy"
+                          onBlur={(event) => paint(field.key, event.target.value)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                  {item.id === "links" ? (
+                    <label className="flex max-w-xs items-center gap-2 text-xs text-navy">
+                      <span className="shrink-0">Transition</span>
+                      <span className={`${adminField} flex h-8 flex-1 items-center gap-1 px-2 py-0`}>
+                        <input
+                          type="number"
+                          min={LINK_TRANSITION_MS_MIN}
+                          max={LINK_TRANSITION_MS_MAX}
+                          step={50}
+                          value={linkTransitionMs}
+                          disabled={busy}
+                          aria-label="Link hover transition speed in milliseconds"
+                          className="h-full min-w-0 flex-1 bg-transparent text-sm text-navy outline-none"
+                          onChange={(event) =>
+                            onTransitionChange(
+                              normalizeLinkTransitionMs(
+                                event.target.value === ""
+                                  ? DEFAULT_LINK_TRANSITION_MS
+                                  : event.target.value,
+                              ),
+                            )
+                          }
+                        />
+                        <span className="shrink-0 text-navy/55">ms</span>
+                      </span>
+                    </label>
+                  ) : null}
+                </div>
               </AccordionPanel>
             </section>
           );

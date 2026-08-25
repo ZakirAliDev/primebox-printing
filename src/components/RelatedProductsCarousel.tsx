@@ -5,6 +5,7 @@ import {
   relatedLoopBounds,
   relatedLoopItems,
   relatedSnapLoopIndex,
+  uniqueRelatedItems,
 } from "@/lib/related-carousel";
 import {
   useCallback,
@@ -65,11 +66,13 @@ export function RelatedProductsCarousel({
   slides,
   autoplay = true,
   autoplayMs = 5000,
+  label = "Related packages",
 }: {
   items: RelatedItem[];
   slides: RelatedCarouselSlides;
   autoplay?: boolean;
   autoplayMs?: number;
+  label?: string;
 }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const pointerStart = useRef({ x: 0, y: 0, swiped: false });
@@ -80,8 +83,10 @@ export function RelatedProductsCarousel({
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
-  const bounds = useMemo(() => relatedLoopBounds(items, visible), [items, visible]);
-  const loopItems = useMemo(() => relatedLoopItems(items, visible), [items, visible]);
+  const uniqueItems = useMemo(() => uniqueRelatedItems(items), [items]);
+  const bounds = useMemo(() => relatedLoopBounds(uniqueItems, visible), [uniqueItems, visible]);
+  const loopItems = useMemo(() => relatedLoopItems(uniqueItems, visible), [uniqueItems, visible]);
+  const canLoop = uniqueItems.length > visible;
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -91,12 +96,15 @@ export function RelatedProductsCarousel({
 
     const nextVisible = slidesForWidth(window.innerWidth, slides);
     const width = viewport.clientWidth;
+    const nextLayoutCount = Math.max(Math.min(nextVisible, uniqueItems.length || 1), 1);
     const nextSlideWidth =
-      nextVisible > 0 ? (width - GAP_PX * Math.max(nextVisible - 1, 0)) / nextVisible : width;
+      nextLayoutCount > 0
+        ? (width - GAP_PX * Math.max(nextLayoutCount - 1, 0)) / nextLayoutCount
+        : width;
 
     setVisible(nextVisible);
     setSlideWidth(nextSlideWidth);
-  }, [slides]);
+  }, [slides, uniqueItems.length]);
 
   useLayoutEffect(() => {
     measure();
@@ -122,7 +130,7 @@ export function RelatedProductsCarousel({
       window.requestAnimationFrame(() => setAnimate(true));
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [bounds.start, items, visible]);
+  }, [bounds.start, uniqueItems, visible]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -133,7 +141,7 @@ export function RelatedProductsCarousel({
   }, []);
 
   useEffect(() => {
-    const snapped = relatedSnapLoopIndex(scrollIndex, items, visible);
+    const snapped = relatedSnapLoopIndex(scrollIndex, uniqueItems, visible);
     if (snapped === scrollIndex) {
       return;
     }
@@ -147,7 +155,7 @@ export function RelatedProductsCarousel({
       setScrollIndex(snapped);
     }, TRANSITION_MS);
     return () => window.clearTimeout(timer);
-  }, [items, reducedMotion, scrollIndex, visible]);
+  }, [uniqueItems, reducedMotion, scrollIndex, visible]);
 
   useEffect(() => {
     if (animate) {
@@ -160,21 +168,27 @@ export function RelatedProductsCarousel({
   }, [animate]);
 
   const stepPx = slideWidth + GAP_PX;
-  const offsetPx = scrollIndex * stepPx;
-  const canTransition = animate && !reducedMotion;
+  const offsetPx = canLoop ? scrollIndex * stepPx : 0;
+  const canTransition = animate && !reducedMotion && canLoop;
 
-  const step = useCallback((delta: number) => {
-    setAnimate(true);
-    setScrollIndex((current) => current + delta);
-  }, []);
+  const step = useCallback(
+    (delta: number) => {
+      if (!canLoop) {
+        return;
+      }
+      setAnimate(true);
+      setScrollIndex((current) => current + delta);
+    },
+    [canLoop],
+  );
 
   useEffect(() => {
-    if (paused || !autoplay || reducedMotion || items.length === 0) {
+    if (paused || !autoplay || reducedMotion || !canLoop || uniqueItems.length === 0) {
       return;
     }
     const timer = window.setInterval(() => step(1), autoplayMs);
     return () => window.clearInterval(timer);
-  }, [autoplay, autoplayMs, items.length, paused, reducedMotion, step]);
+  }, [autoplay, autoplayMs, canLoop, uniqueItems.length, paused, reducedMotion, step]);
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     pointerStart.current = { x: event.clientX, y: event.clientY, swiped: false };
@@ -208,7 +222,7 @@ export function RelatedProductsCarousel({
     }
   }, []);
 
-  if (items.length === 0) {
+  if (uniqueItems.length === 0) {
     return null;
   }
 
@@ -227,20 +241,22 @@ export function RelatedProductsCarousel({
         }
       }}
     >
-      <button
-        type="button"
-        className={`${arrowClassName} left-0 -translate-x-[calc(100%+0.75rem)] max-md:left-1 max-md:translate-x-0`}
-        aria-label="Show previous related products"
-        onClick={() => step(-1)}
-      >
-        <CarouselArrow dir="prev" />
-      </button>
+      {canLoop ? (
+        <button
+          type="button"
+          className={`${arrowClassName} left-0 -translate-x-[calc(100%+0.75rem)] max-md:left-1 max-md:translate-x-0`}
+          aria-label={`Show previous ${label}`}
+          onClick={() => step(-1)}
+        >
+          <CarouselArrow dir="prev" />
+        </button>
+      ) : null}
 
       <div
         ref={viewportRef}
         className="w-full touch-pan-y select-none"
         aria-roledescription="carousel"
-        aria-label="Related packages"
+        aria-label={label}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -257,7 +273,7 @@ export function RelatedProductsCarousel({
           >
             {loopItems.map((item, index) => (
               <li
-                key={`${item.slug}-${index}`}
+                key={canLoop ? `${item.slug}-${index}` : item.slug}
                 className="shrink-0"
                 style={{ width: slideWidth > 0 ? slideWidth : "100%" }}
               >
@@ -268,14 +284,16 @@ export function RelatedProductsCarousel({
         </div>
       </div>
 
-      <button
-        type="button"
-        className={`${arrowClassName} right-0 translate-x-[calc(100%+0.75rem)] max-md:right-1 max-md:translate-x-0`}
-        aria-label="Show next related products"
-        onClick={() => step(1)}
-      >
-        <CarouselArrow dir="next" />
-      </button>
+      {canLoop ? (
+        <button
+          type="button"
+          className={`${arrowClassName} right-0 translate-x-[calc(100%+0.75rem)] max-md:right-1 max-md:translate-x-0`}
+          aria-label={`Show next ${label}`}
+          onClick={() => step(1)}
+        >
+          <CarouselArrow dir="next" />
+        </button>
+      ) : null}
     </div>
   );
 }

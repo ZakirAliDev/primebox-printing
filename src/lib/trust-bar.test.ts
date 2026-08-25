@@ -4,6 +4,8 @@ import {
   createTrustBarSlide,
   normalizeTrustBarSettings,
   trustBarHasContent,
+  trustBarMarqueeDurationMs,
+  trustBarMarqueeSet,
 } from "./trust-bar";
 
 test("normalizeTrustBarSettings keeps two still slots and drops empty carousel slides", () => {
@@ -33,6 +35,8 @@ test("normalizeTrustBarSettings keeps two still slots and drops empty carousel s
   assert.equal(next.carousel.autoplayMs, 1000);
   assert.equal(next.carousel.slidesToShowDesktop, 12);
   assert.equal(next.carousel.slidesToShowMobile, 1);
+  assert.equal(next.stillHeight, 64);
+  assert.equal(next.slideHeight, 64);
 });
 
 test("trustBarHasContent reflects stills and carousel", () => {
@@ -59,4 +63,16 @@ test("trustBarHasContent reflects stills and carousel", () => {
     ),
     true,
   );
+});
+
+test("trustBarMarqueeSet fills at least one viewport without dropping unique slides", () => {
+  assert.deepEqual(trustBarMarqueeSet([], 7), []);
+  assert.equal(trustBarMarqueeSet(["a"], 7).length, 7);
+  assert.deepEqual(trustBarMarqueeSet(["a", "b", "c"], 2), ["a", "b", "c"]);
+  assert.equal(trustBarMarqueeSet(["a", "b", "c"], 7).length, 9);
+});
+
+test("trustBarMarqueeDurationMs scales with slide count", () => {
+  assert.equal(trustBarMarqueeDurationMs(1, 5000), 1667);
+  assert.equal(trustBarMarqueeDurationMs(6, 5000), 10002);
 });

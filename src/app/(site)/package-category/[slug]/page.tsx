@@ -5,7 +5,9 @@ import { CategoryPagination } from "@/components/CategoryPagination";
 import { CategoryProductCountBar } from "@/components/CategoryProductCountBar";
 import { CategoryProductsSection } from "@/components/CategoryProductCount";
 import { CategorySidebar } from "@/components/CategorySidebar";
+import { PreviewBanner } from "@/components/PreviewBanner";
 import { ProductCard, type ProductCardItem } from "@/components/ProductCard";
+import { readPreview } from "@/lib/admin-preview";
 import {
   categoryBreadcrumbs,
   categoryChildren,
@@ -13,13 +15,14 @@ import {
   packageCoverImage,
   paginateCategoryProducts,
   parseCategoryPageNumber,
+  type Category,
 } from "@/lib/catalog";
 import { readCatalog } from "@/lib/catalog-store";
 import { plainTextFromHtml } from "@/lib/rich-text";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; preview?: string }>;
 };
 
 export async function generateStaticParams() {
@@ -27,8 +30,18 @@ export async function generateStaticParams() {
   return categories.map((item) => ({ slug: item.slug }));
 }
 
-export async function generateMetadata({ params }: CategoryPageProps) {
+export async function generateMetadata({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
+  const { preview: previewToken } = await searchParams;
+  if (previewToken) {
+    const preview = await readPreview(previewToken);
+    if (preview?.kind === "category" && preview.slug === slug) {
+      return {
+        title: `${preview.category.name} (Preview)`,
+        description: preview.category.summary || preview.category.description,
+      };
+    }
+  }
   const { categories } = await readCatalog();
   const category = categories.find((item) => item.slug === slug);
   return {
@@ -39,16 +52,29 @@ export async function generateMetadata({ params }: CategoryPageProps) {
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
-  const { page: pageParam } = await searchParams;
-  const { categories, packages: allPackages, categoryPageSettings } = await readCatalog();
-  const category = categories.find((item) => item.slug === slug);
+  const { page: pageParam, preview: previewToken } = await searchParams;
+  const { categories: catalogCategories, packages: allPackages, categoryPageSettings } =
+    await readCatalog();
+  const preview = previewToken ? await readPreview(previewToken) : null;
+  const previewCategory =
+    preview?.kind === "category" && preview.slug === slug ? preview.category : null;
+  const categories: Category[] = previewCategory
+    ? [
+        ...catalogCategories.filter((item) => item.slug !== previewCategory.slug),
+        previewCategory,
+      ]
+    : catalogCategories;
+  const category = previewCategory ?? catalogCategories.find((item) => item.slug === slug);
   if (!category) {
     notFound();
   }
 
   const breadcrumbs = categoryBreadcrumbs(categories, slug);
   const children = categoryChildren(categories, slug);
-  const packages = allPackages.filter((item) => item.categorySlugs.includes(slug));
+  const packages =
+    preview?.kind === "category" && preview.slug === slug
+      ? allPackages.filter((item) => preview.productSlugs.includes(item.slug))
+      : allPackages.filter((item) => item.categorySlugs.includes(slug));
   const productItems: ProductCardItem[] = packages.map((item) => ({
     slug: item.slug,
     name: item.name,
@@ -80,6 +106,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
+      {previewCategory ? <PreviewBanner /> : null}
       {breadcrumbs.length > 1 ? (
         <nav aria-label="Breadcrumb" className="text-sm text-muted">
           {breadcrumbs.map((crumb, index) => (
@@ -103,21 +130,10 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         {categoryPageSettings.sidebarEnabled && categoryPageSettings.sidebarPosition === "left" ? sidebar : null}
 
         <div className="min-w-0">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] lg:items-start">
-            {category.image ? (
-              <img
-                src={category.image}
-                alt={category.name}
-                className="aspect-square w-full max-w-[280px] rounded-lg object-cover bg-navy/5"
-              />
-            ) : null}
-            <div className={category.image ? "" : "lg:col-span-2"}>
-              <h1 className="text-4xl font-semibold">{category.name}</h1>
-              {category.description || category.summary ? (
-                <p className="mt-3 max-w-2xl text-muted">{category.description || category.summary}</p>
-              ) : null}
-            </div>
-          </div>
+          <h1 className="text-4xl font-semibold">{category.name}</h1>
+          {category.description || category.summary ? (
+            <p className="mt-3 max-w-2xl text-muted">{category.description || category.summary}</p>
+          ) : null}
 
           {children.length > 0 ? (
             <section className="mt-10">

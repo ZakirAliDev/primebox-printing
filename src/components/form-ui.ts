@@ -18,10 +18,12 @@ export const siteTextarea = `${siteFieldBase} px-3 py-2.5 text-navy placeholder:
 
 export const siteSelect = `${siteFieldBase} site-select h-[38px] appearance-none px-3 pr-10`;
 
-export const siteFieldRowPair = "grid min-w-0 grid-cols-2 gap-3";
+export const siteFieldRowPair = "grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2";
+
+export const siteFieldRowTriple = "grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3";
 
 export const siteFieldRowQuad =
-  "grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.75fr)] gap-3";
+  "grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.75fr)]";
 
 export const siteFieldRow = "grid gap-4 grid-cols-1 @2xl:grid-cols-2";
 

@@ -12,9 +12,9 @@ export function CategorySidebar({
 
   return (
     <nav aria-label="Browse categories" className="rounded-lg border border-border/10 bg-surface">
-      <h2 className="border-b border-border/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-navy">
+      <h4 className="border-b border-border/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-navy">
         Categories
-      </h2>
+      </h4>
       <ul className="max-h-[min(70vh,640px)] overflow-y-auto py-2">
         {items.map((category) => {
           const active = category.slug === activeSlug;

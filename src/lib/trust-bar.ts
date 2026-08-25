@@ -15,6 +15,8 @@ export type TrustBarCarouselSettings = {
 
 export type TrustBarSettings = {
   stills: [TrustBarImage, TrustBarImage];
+  stillHeight: number;
+  slideHeight: number;
   carousel: TrustBarCarouselSettings;
 };
 
@@ -26,6 +28,9 @@ export const TRUST_BAR_SLIDES_DESKTOP_DEFAULT = 7;
 export const TRUST_BAR_SLIDES_MOBILE_DEFAULT = 3;
 export const TRUST_BAR_SLIDES_SHOW_MIN = 1;
 export const TRUST_BAR_SLIDES_SHOW_MAX = 12;
+export const TRUST_BAR_IMAGE_HEIGHT_DEFAULT = 64;
+export const TRUST_BAR_IMAGE_HEIGHT_MIN = 24;
+export const TRUST_BAR_IMAGE_HEIGHT_MAX = 160;
 
 function clampInt(value: unknown, fallback: number, min: number, max: number) {
   const next = typeof value === "number" ? value : Number(value);
@@ -83,6 +88,18 @@ export function normalizeTrustBarSettings(input?: Partial<TrustBarSettings> | nu
 
   return {
     stills: [stillA, stillB],
+    stillHeight: clampInt(
+      input?.stillHeight,
+      TRUST_BAR_IMAGE_HEIGHT_DEFAULT,
+      TRUST_BAR_IMAGE_HEIGHT_MIN,
+      TRUST_BAR_IMAGE_HEIGHT_MAX,
+    ),
+    slideHeight: clampInt(
+      input?.slideHeight,
+      TRUST_BAR_IMAGE_HEIGHT_DEFAULT,
+      TRUST_BAR_IMAGE_HEIGHT_MIN,
+      TRUST_BAR_IMAGE_HEIGHT_MAX,
+    ),
     carousel: {
       slides,
       autoplay: carouselInput?.autoplay !== false,
@@ -112,4 +129,24 @@ export const DEFAULT_TRUST_BAR_SETTINGS: TrustBarSettings = normalizeTrustBarSet
 
 export function trustBarHasContent(settings: TrustBarSettings) {
   return settings.stills.some((item) => item.image) || settings.carousel.slides.length > 0;
+}
+
+/** Repeat slides until the marquee set can fill the viewport. */
+export function trustBarMarqueeSet<T>(items: T[], visible: number) {
+  if (items.length === 0) {
+    return [];
+  }
+  const min = Math.max(items.length, visible, 1);
+  const result: T[] = [];
+  while (result.length < min) {
+    result.push(...items);
+  }
+  return result;
+}
+
+/** Duration for one original slide set to pass, in ms. */
+export function trustBarMarqueeDurationMs(slideCount: number, autoplayMs: number) {
+  const count = Math.max(slideCount, 1);
+  const perSlide = Math.max(1200, Math.round(autoplayMs / 3));
+  return count * perSlide;
 }

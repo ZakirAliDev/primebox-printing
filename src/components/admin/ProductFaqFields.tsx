@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { setProductFaqsEnabledAction } from "@/app/admin/actions";
 import { AdminToast } from "@/components/admin/AdminNotice";
 import { adminField, adminGhost, adminMuted, adminTrash } from "@/components/admin/ui";
@@ -10,6 +10,15 @@ type FaqRow = ProductFaq & { id: string };
 
 function emptyFaq(): FaqRow {
   return { id: crypto.randomUUID(), question: "", answer: "" };
+}
+
+function faqsPayload(rows: FaqRow[]): ProductFaq[] {
+  return rows
+    .map((row) => ({
+      question: row.question.trim(),
+      answer: row.answer.trim(),
+    }))
+    .filter((faq) => faq.question && faq.answer);
 }
 
 export function ProductFaqFields({
@@ -34,6 +43,69 @@ export function ProductFaqFields({
       : [emptyFaq()],
   );
   const [openId, setOpenId] = useState(rows[0]?.id ?? "");
+  const persistRef = useRef<HTMLInputElement>(null);
+  const rowsRef = useRef(rows);
+  rowsRef.current = rows;
+
+  useEffect(() => {
+    if (persistRef.current) {
+      persistRef.current.value = JSON.stringify(faqsPayload(rows));
+    }
+  }, [rows]);
+
+  // Collapse/accordion DOM fields are not reliable on submit. Sync from React state
+  // in capture phase and via formdata (Publish button lives outside the form).
+  useEffect(() => {
+    const input = persistRef.current;
+    if (!input) {
+      return;
+    }
+
+    const resolveForm = () =>
+      input.form ?? (document.getElementById("product-save") as HTMLFormElement | null)
+      ?? (document.getElementById("page-settings-save") as HTMLFormElement | null);
+
+    const writeFaqsJson = (target?: FormData) => {
+      const payload = JSON.stringify(faqsPayload(rowsRef.current));
+      input.value = payload;
+      if (target) {
+        target.set("faqsJson", payload);
+      }
+    };
+
+    const onSubmit = () => {
+      writeFaqsJson();
+    };
+
+    const onFormData = (event: FormDataEvent) => {
+      writeFaqsJson(event.formData);
+    };
+
+    let form = resolveForm();
+    if (form) {
+      form.addEventListener("submit", onSubmit, true);
+      form.addEventListener("formdata", onFormData);
+    }
+
+    // Client islands can mount before the form association is ready.
+    const retry = window.setTimeout(() => {
+      const nextForm = resolveForm();
+      if (!nextForm || nextForm === form) {
+        return;
+      }
+      form?.removeEventListener("submit", onSubmit, true);
+      form?.removeEventListener("formdata", onFormData);
+      form = nextForm;
+      form.addEventListener("submit", onSubmit, true);
+      form.addEventListener("formdata", onFormData);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(retry);
+      form?.removeEventListener("submit", onSubmit, true);
+      form?.removeEventListener("formdata", onFormData);
+    };
+  }, []);
 
   const updateRow = (id: string, field: "question" | "answer", value: string) => {
     setRows((current) => current.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
@@ -87,6 +159,16 @@ export function ProductFaqFields({
     <div className={`space-y-3 ${disabled ? "pointer-events-none opacity-60" : ""}`}>
       <AdminToast notice={notice} />
       <input type="hidden" name="faqsEnabled" value={enabled ? "1" : "0"} />
+      <input
+        ref={persistRef}
+        type="hidden"
+        name="faqsJson"
+        defaultValue={JSON.stringify(
+          defaultFaqs
+            .map((faq) => ({ question: faq.question.trim(), answer: faq.answer.trim() }))
+            .filter((faq) => faq.question && faq.answer),
+        )}
+      />
       {showDisplayToggle ? (
       <div className="flex items-center justify-between gap-3 rounded-lg border border-navy/10 bg-navy/[0.03] px-3 py-2">
         <div>
@@ -165,7 +247,6 @@ export function ProductFaqFields({
                     <label className="block">
                       <span className={`mb-1 block text-xs ${adminMuted}`}>Question</span>
                       <input
-                        name="faqQuestion"
                         value={row.question}
                         placeholder="What is the minimum order quantity?"
                         className={adminField}
@@ -175,7 +256,6 @@ export function ProductFaqFields({
                     <label className="block">
                       <span className={`mb-1 block text-xs ${adminMuted}`}>Answer</span>
                       <textarea
-                        name="faqAnswer"
                         value={row.answer}
                         rows={3}
                         placeholder="Write the answer"

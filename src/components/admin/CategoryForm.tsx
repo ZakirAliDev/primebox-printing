@@ -27,6 +27,7 @@ export function CategoryForm({
       <AdminPublishActions
         isNew={isNew}
         formId={FORM_ID}
+        previewKind="category"
         trash={
           category ? (
             <form action={deleteCategoryAction}>

@@ -1,74 +1,115 @@
-import { redirect } from "next/navigation";
 import {
   siteField,
   siteFieldLabel,
   siteFieldRowPair,
   siteFieldRowQuad,
+  siteFieldRowTriple,
   siteFormEmbedded,
   siteFormStandalone,
   siteFormTitle,
+  siteSelect,
   siteTextarea,
   siteSubmit,
 } from "@/components/form-ui";
 import { SiteSelect } from "@/components/SiteSelect";
+import { submitQuote } from "@/app/(site)/actions";
 import { ADDONS, BOX_STYLES, UNITS } from "@/lib/site";
 
-export async function submitQuote(formData: FormData) {
-  "use server";
-
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const comment = String(formData.get("comment") ?? "").trim();
-  const returnTo = String(formData.get("returnTo") ?? "/quote");
-
-  if (!name || !email || !comment) {
-    const errorPath = returnTo.includes("?") ? `${returnTo}&error=1` : `${returnTo}?error=1`;
-    redirect(errorPath);
-  }
-
-  const sentPath = returnTo.includes("?") ? `${returnTo}&sent=1` : `${returnTo}?sent=1`;
-  redirect(sentPath);
-}
+const HOME_COMMENT_PLACEHOLDER =
+  "Please provide the detailed packaging specifications including dimensions, materials, weight, and design references. Our packaging specialist will review the information and promptly provide you with a competitive quote.";
 
 type QuoteFormProps = {
   compact?: boolean;
   embedded?: boolean;
   returnTo?: string;
+  hideTitle?: boolean;
 };
 
-export function QuoteForm({ compact = false, embedded = false, returnTo = "/quote" }: QuoteFormProps) {
+export function QuoteForm({
+  compact = false,
+  embedded = false,
+  returnTo = "/quote",
+  hideTitle = false,
+}: QuoteFormProps) {
   return (
     <form action={submitQuote} className={embedded ? siteFormEmbedded : siteFormStandalone}>
       <input type="hidden" name="returnTo" value={returnTo} />
-      <h2 className={siteFormTitle}>Request your quote in a few simple steps</h2>
-      <div className={siteFieldRowPair}>
-        <label className={siteFieldLabel}>
-          Name *
-          <input required name="name" className={siteField} />
-        </label>
-        <label className={siteFieldLabel}>
-          Email *
-          <input required type="email" name="email" className={siteField} />
-        </label>
-      </div>
-      <div className={siteFieldRowPair}>
-        <label className={siteFieldLabel}>
-          Phone
-          <input type="tel" name="phone" className={siteField} />
-        </label>
-        <label className={siteFieldLabel}>
-          Box style
-          <SiteSelect name="boxStyle">
-            {BOX_STYLES.map((style) => (
-              <option key={style} value={style}>
-                {style}
-              </option>
-            ))}
-          </SiteSelect>
-        </label>
-      </div>
-      {!compact ? (
+      {hideTitle ? null : <h5 className={siteFormTitle}>Request your quote in a few simple steps</h5>}
+      {compact ? (
         <>
+          <div className={siteFieldRowTriple}>
+            <label className={siteFieldLabel}>
+              Name *
+              <input required name="name" className={siteField} />
+            </label>
+            <label className={siteFieldLabel}>
+              Email *
+              <input required type="email" name="email" className={siteField} />
+            </label>
+            <label className={siteFieldLabel}>
+              Phone
+              <input type="tel" name="phone" className={siteField} />
+            </label>
+          </div>
+          <div className={siteFieldRowTriple}>
+            <label className={siteFieldLabel}>
+              Size *
+              <input required name="size" className={siteField} />
+            </label>
+            <label className={siteFieldLabel}>
+              Unit
+              <select name="unit" className={siteSelect} defaultValue="">
+                <option value="">—Please choose an option—</option>
+                {UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={siteFieldLabel}>
+              Quantity *
+              <input required name="quantity" type="number" min={1} className={siteField} />
+            </label>
+          </div>
+          <label className={siteFieldLabel}>
+            Choose File (Allowed file types to upload AI, PDF, EPS, TIFF)
+            <input
+              type="file"
+              name="artwork"
+              accept=".ai,.pdf,.eps,.tiff,.tif,.jpg,.jpeg,.png,.gif"
+              className={`${siteField} h-auto py-2 file:mr-3 file:rounded file:border-0 file:bg-navy/5 file:px-3 file:py-1 file:text-sm file:font-medium file:text-navy`}
+            />
+          </label>
+        </>
+      ) : (
+        <>
+          <div className={siteFieldRowPair}>
+            <label className={siteFieldLabel}>
+              Name *
+              <input required name="name" className={siteField} />
+            </label>
+            <label className={siteFieldLabel}>
+              Email *
+              <input required type="email" name="email" className={siteField} />
+            </label>
+          </div>
+          <div className={siteFieldRowPair}>
+            <label className={siteFieldLabel}>
+              Phone
+              <input type="tel" name="phone" className={siteField} />
+            </label>
+            <label className={siteFieldLabel}>
+              Box style
+              <SiteSelect name="boxStyle">
+                {BOX_STYLES.map((style) => (
+                  <option key={style} value={style}>
+                    {style}
+                  </option>
+                ))}
+              </SiteSelect>
+            </label>
+          </div>
           <div className={siteFieldRowQuad}>
             <label className={siteFieldLabel}>
               Length *
@@ -118,14 +159,14 @@ export function QuoteForm({ compact = false, embedded = false, returnTo = "/quot
             </label>
           </div>
         </>
-      ) : null}
+      )}
       <label className={siteFieldLabel}>
-        Comment *
+        Comment *:
         <textarea
           required
           name="comment"
           rows={4}
-          placeholder="Dimensions, materials, weight, and design references."
+          placeholder={compact ? HOME_COMMENT_PLACEHOLDER : "Dimensions, materials, weight, and design references."}
           className={siteTextarea}
         />
       </label>
