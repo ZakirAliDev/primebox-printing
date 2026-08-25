@@ -12,6 +12,9 @@ import {
   siteTypographyCssVars,
 } from "@/lib/site-typography";
 
+/** Catalog comes from MySQL; never ship a build-time frozen storefront. */
+export const dynamic = "force-dynamic";
+
 export default async function SiteLayout({
   children,
 }: Readonly<{

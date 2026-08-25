@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_noStore as noStore } from "next/cache";
 import { deleteCategoryUploads } from "@/lib/category-media";
 import type { Catalog, Category, CategoryPageSettings, Package, ProductAttribute, ProductFaq, ProductPageSettings, ProductTab, RelatedMode, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
 import { layoutToHtml } from "@/lib/template-layout";
@@ -9,12 +9,16 @@ import { isDatabaseConfigured } from "@/lib/db";
 import { deleteProductUploads, saveRemoteProductImage } from "@/lib/product-media";
 import { resolveCategorySlugs, type ProductCsvRow } from "@/lib/product-csv";
 
-/** Dedupes within a request; catalog-db memos across requests until data changes. */
-export const readCatalog = cache(loadCatalogDocument);
+/** Within-request dedupe; noStore so Hostinger doesn’t keep a stale static homepage. */
+export const readCatalog = cache(async () => {
+  noStore();
+  return loadCatalogDocument();
+});
 
 async function writeCatalog(catalog: Catalog) {
   await saveCatalogDocument(catalog);
   revalidatePath("/", "layout");
+  revalidatePath("/");
 }
 
 export function catalogStorageMode(): "database" | "file" {
