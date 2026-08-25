@@ -15,6 +15,12 @@ export const readCatalog = cache(async () => {
   return loadCatalogDocument();
 });
 
+/** Fresh clone for admin writes — bypasses React cache so we never save a stale snapshot. */
+async function readCatalogForWrite(): Promise<Catalog> {
+  noStore();
+  return loadCatalogDocument();
+}
+
 async function writeCatalog(catalog: Catalog) {
   await saveCatalogDocument(catalog);
   revalidatePath("/", "layout");
@@ -35,7 +41,7 @@ export async function upsertCategory(input: {
   image: string;
   parentSlug: string;
 }) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const slug = slugify(input.slug || input.name);
   if (!slug) {
     throw new Error("Category name is required.");
@@ -71,7 +77,7 @@ export async function upsertCategory(input: {
 }
 
 export async function setCategoryProducts(categorySlug: string, productSlugs: string[]) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const selected = new Set(productSlugs.filter(Boolean));
   catalog.packages = catalog.packages.map((item) => {
     const inCategory = item.categorySlugs.includes(categorySlug);
@@ -88,7 +94,7 @@ export async function setCategoryProducts(categorySlug: string, productSlugs: st
 }
 
 export async function deleteCategory(slug: string) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const removed = catalog.categories.find((item) => item.slug === slug);
   const parentSlug = removed?.parentSlug ?? "";
   catalog.categories = catalog.categories
@@ -124,7 +130,7 @@ export async function upsertPackage(input: {
   tabs: ProductTab[];
   tabsOverride: boolean;
 }) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const slug = slugify(input.slug || input.name);
   if (!slug) {
     throw new Error("Product name is required.");
@@ -171,7 +177,7 @@ export async function importPackages(
   rows: ProductCsvRow[],
   options: { updateExisting: boolean; downloadImages: boolean },
 ): Promise<PackageImportRowResult[]> {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const results: PackageImportRowResult[] = [];
 
   const resolveImages = async (slug: string, urls: string[]) => {
@@ -261,7 +267,7 @@ export async function patchPackage(
   slug: string,
   patch: Partial<Pick<Package, "faqsEnabled" | "faqsOverride" | "tabsOverride" | "extraContentOverride">>,
 ) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const current = catalog.packages.find((item) => item.slug === slug);
   if (!current) {
     throw new Error("Product not found.");
@@ -271,7 +277,7 @@ export async function patchPackage(
 }
 
 export async function setGlobalTabsEnabled(enabled: boolean) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.productPageSettings = {
     ...catalog.productPageSettings,
     globalTabsEnabled: enabled,
@@ -280,7 +286,7 @@ export async function setGlobalTabsEnabled(enabled: boolean) {
 }
 
 export async function setGlobalFaqsEnabled(enabled: boolean) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.productPageSettings = {
     ...catalog.productPageSettings,
     globalFaqsEnabled: enabled,
@@ -289,7 +295,7 @@ export async function setGlobalFaqsEnabled(enabled: boolean) {
 }
 
 export async function setGlobalExtraContentEnabled(enabled: boolean) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.productPageSettings = {
     ...catalog.productPageSettings,
     globalExtraContentEnabled: enabled,
@@ -298,28 +304,28 @@ export async function setGlobalExtraContentEnabled(enabled: boolean) {
 }
 
 export async function upsertProductPageSettings(input: ProductPageSettings) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.productPageSettings = normalizeProductPageSettings(input);
   await writeCatalog(catalog);
   return catalog.productPageSettings;
 }
 
 export async function upsertCategoryPageSettings(input: CategoryPageSettings) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.categoryPageSettings = normalizeCategoryPageSettings(input);
   await writeCatalog(catalog);
   return catalog.categoryPageSettings;
 }
 
 export async function patchSiteSettings(patch: Partial<SiteSettings>) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.siteSettings = normalizeSiteSettings({ ...catalog.siteSettings, ...patch });
   await writeCatalog(catalog);
   return catalog.siteSettings;
 }
 
 export async function deletePackage(slug: string) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.packages = catalog.packages
     .filter((item) => item.slug !== slug)
     .map((item) => ({
@@ -335,7 +341,7 @@ export async function deletePackages(slugs: string[]) {
   if (remove.size === 0) {
     return;
   }
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.packages = catalog.packages
     .filter((item) => !remove.has(item.slug))
     .map((item) => ({
@@ -351,7 +357,7 @@ export async function deleteCategories(slugs: string[]) {
   if (remove.size === 0) {
     return;
   }
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   let categories = catalog.categories;
   for (const slug of remove) {
     const removed = categories.find((item) => item.slug === slug);
@@ -382,7 +388,7 @@ export async function upsertTag(input: {
   name: string;
   summary: string;
 }) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const slug = slugify(input.slug || input.name);
   if (!slug) {
     throw new Error("Tag name is required.");
@@ -395,7 +401,7 @@ export async function upsertTag(input: {
 }
 
 export async function deleteTag(slug: string) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.tags = catalog.tags.filter((item) => item.slug !== slug);
   await writeCatalog(catalog);
 }
@@ -405,7 +411,7 @@ export async function deleteTags(slugs: string[]) {
   if (remove.size === 0) {
     return;
   }
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.tags = catalog.tags.filter((item) => !remove.has(item.slug));
   await writeCatalog(catalog);
 }
@@ -445,7 +451,7 @@ export async function upsertTabTemplate(input: {
   name: string;
   layout: TabTemplate["layout"];
 }) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const slug = slugify(input.slug || input.name);
   if (!slug) {
     throw new Error("Template name is required.");
@@ -469,7 +475,7 @@ export async function deleteTabTemplates(slugs: string[]) {
   if (remove.size === 0) {
     return;
   }
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.packages = detachTemplateTabs(catalog.packages, catalog.tabTemplates, remove);
   catalog.tabTemplates = catalog.tabTemplates.filter((item) => !remove.has(item.slug));
   await writeCatalog(catalog);
@@ -481,7 +487,7 @@ export async function upsertAttribute(input: {
   name: string;
   terms: string[];
 }) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   const slug = slugify(input.slug || input.name);
   if (!slug) {
     throw new Error("Attribute name is required.");
@@ -498,7 +504,7 @@ export async function upsertAttribute(input: {
 }
 
 export async function deleteAttribute(slug: string) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.attributes = catalog.attributes.filter((item) => item.slug !== slug);
   await writeCatalog(catalog);
 }
@@ -508,13 +514,13 @@ export async function deleteAttributes(slugs: string[]) {
   if (remove.size === 0) {
     return;
   }
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.attributes = catalog.attributes.filter((item) => !remove.has(item.slug));
   await writeCatalog(catalog);
 }
 
 export async function deleteReview(id: string) {
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.reviews = catalog.reviews.filter((item) => item.id !== id);
   await writeCatalog(catalog);
 }
@@ -524,7 +530,7 @@ export async function deleteReviews(ids: string[]) {
   if (remove.size === 0) {
     return;
   }
-  const catalog = await readCatalog();
+  const catalog = await readCatalogForWrite();
   catalog.reviews = catalog.reviews.filter((item) => !remove.has(item.id));
   await writeCatalog(catalog);
 }

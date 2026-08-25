@@ -20,6 +20,10 @@ type CatalogMemo = { version: string; catalog: Catalog };
 
 let catalogMemo: CatalogMemo | null = null;
 
+function cloneCatalog(catalog: Catalog): Catalog {
+  return structuredClone(catalog);
+}
+
 export function parseCatalog(data: Partial<Catalog> | null | undefined): Catalog {
   const raw = data ?? {};
   return {
@@ -51,10 +55,9 @@ async function loadCatalogFromDatabase(): Promise<{ catalog: Catalog; version: s
   if (!row) {
     // First boot: seed from bundled JSON so the site never starts empty.
     const fromFile = await loadCatalogFromFile();
-    await prisma.catalogDocument.create({
+    const created = await prisma.catalogDocument.create({
       data: { id: CATALOG_DOC_ID, data: fromFile.catalog as object },
     });
-    const created = await prisma.catalogDocument.findUniqueOrThrow({ where: { id: CATALOG_DOC_ID } });
     return {
       catalog: parseCatalog(created.data as Partial<Catalog>),
       version: `db:${created.updatedAt.getTime()}`,
@@ -80,14 +83,19 @@ export async function loadCatalogDocument(): Promise<Catalog> {
         });
         const version = meta ? `db:${meta.updatedAt.getTime()}` : null;
         if (version && catalogMemo.version === version) {
-          return catalogMemo.catalog;
+          return cloneCatalog(catalogMemo.catalog);
         }
       }
       const loaded = await loadCatalogFromDatabase();
       catalogMemo = { version: loaded.version, catalog: loaded.catalog };
-      return loaded.catalog;
+      return cloneCatalog(loaded.catalog);
     } catch (error) {
-      // Build hosts / empty DBs should not break `next build`. Fall back to bundled JSON.
+      // Never serve stale bundled JSON in production when MySQL is configured.
+      // That made admin saves "work" while the storefront kept showing catalog.json.
+      if (process.env.NODE_ENV === "production") {
+        console.error("[catalog] MySQL read failed in production.", error);
+        throw error;
+      }
       console.warn("[catalog] MySQL unavailable, using catalog.json fallback.", error);
     }
   }
@@ -95,12 +103,12 @@ export async function loadCatalogDocument(): Promise<Catalog> {
   if (catalogMemo?.version.startsWith("file:")) {
     const stats = await fs.stat(catalogPath);
     if (catalogMemo.version === `file:${stats.mtimeMs}`) {
-      return catalogMemo.catalog;
+      return cloneCatalog(catalogMemo.catalog);
     }
   }
   const loaded = await loadCatalogFromFile();
   catalogMemo = { version: loaded.version, catalog: loaded.catalog };
-  return loaded.catalog;
+  return cloneCatalog(loaded.catalog);
 }
 
 export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
@@ -117,30 +125,15 @@ export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
 
   await ensureDatabaseSchema();
   const prisma = getPrisma();
-  await prisma.catalogDocument.upsert({
+  // Plain JSON so Prisma/MySQL always persist a fresh document (no shared object refs).
+  const data = JSON.parse(JSON.stringify(catalog)) as object;
+  const saved = await prisma.catalogDocument.upsert({
     where: { id: CATALOG_DOC_ID },
-    create: { id: CATALOG_DOC_ID, data: catalog as object },
-    update: { data: catalog as object },
+    create: { id: CATALOG_DOC_ID, data },
+    update: { data },
   });
-  clearCatalogMemo();
-}
-
-export async function seedCatalogFromJsonFile(force = false) {
-  if (!isDatabaseConfigured()) {
-    throw new Error("DATABASE_URL is required to seed the database.");
-  }
-  await ensureDatabaseSchema();
-  const prisma = getPrisma();
-  const existing = await prisma.catalogDocument.findUnique({ where: { id: CATALOG_DOC_ID } });
-  if (existing && !force) {
-    return { seeded: false, reason: "already-exists" as const };
-  }
-  const fromFile = await loadCatalogFromFile();
-  await prisma.catalogDocument.upsert({
-    where: { id: CATALOG_DOC_ID },
-    create: { id: CATALOG_DOC_ID, data: fromFile.catalog as object },
-    update: { data: fromFile.catalog as object },
-  });
-  clearCatalogMemo();
-  return { seeded: true, reason: "ok" as const };
+  catalogMemo = {
+    version: `db:${saved.updatedAt.getTime()}`,
+    catalog: parseCatalog(saved.data as Partial<Catalog>),
+  };
 }
