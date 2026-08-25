@@ -1,4 +1,4 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { Accordion } from "@/components/Accordion";
 import { ContactForm } from "@/components/ContactForm";
@@ -12,16 +12,16 @@ import { packageCoverImage, relatedPackages, resolveProductExtraContent, resolve
 import { readCatalog } from "@/lib/catalog-store";
 import { plainTextFromHtml } from "@/lib/rich-text";
 
-const ProductDataTabs = dynamic(
+const ProductDataTabs = nextDynamic(
   () => import("@/components/ProductDataTabs").then((mod) => mod.ProductDataTabs),
   { loading: () => <div className="h-40 rounded-lg bg-navy/[0.03]" aria-hidden="true" /> },
 );
 
-const ShowMoreContent = dynamic(
+const ShowMoreContent = nextDynamic(
   () => import("@/components/ShowMoreContent").then((mod) => mod.ShowMoreContent),
 );
 
-const RelatedProductsCarousel = dynamic(
+const RelatedProductsCarousel = nextDynamic(
   () =>
     import("@/components/RelatedProductsCarousel").then((mod) => mod.RelatedProductsCarousel),
   { loading: () => <div className="mt-4 h-64 rounded-lg bg-navy/[0.03]" aria-hidden="true" /> },
@@ -32,10 +32,8 @@ type PackagePageProps = {
   searchParams: Promise<{ sent?: string; error?: string; preview?: string }>;
 };
 
-export async function generateStaticParams() {
-  const { packages } = await readCatalog();
-  return packages.map((item) => ({ slug: item.slug }));
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params, searchParams }: PackagePageProps) {
   const { slug } = await params;

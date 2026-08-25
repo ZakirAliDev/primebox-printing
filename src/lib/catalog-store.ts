@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { connection } from "next/server";
 import { revalidatePath, unstable_noStore as noStore } from "next/cache";
 import { deleteCategoryUploads } from "@/lib/category-media";
 import type { Catalog, Category, CategoryPageSettings, Package, ProductAttribute, ProductFaq, ProductPageSettings, ProductTab, RelatedMode, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
@@ -9,14 +10,19 @@ import { isDatabaseConfigured } from "@/lib/db";
 import { deleteProductUploads, saveRemoteProductImage } from "@/lib/product-media";
 import { resolveCategorySlugs, type ProductCsvRow } from "@/lib/product-csv";
 
-/** Within-request dedupe; noStore so Hostinger doesn’t keep a stale static homepage. */
+/**
+ * Within-request dedupe. connection() + noStore() bail out of Full Route Cache /
+ * prerender so Hostinger hard-refresh never serves a year-old homepage snapshot.
+ */
 export const readCatalog = cache(async () => {
+  await connection();
   noStore();
   return loadCatalogDocument();
 });
 
 /** Fresh clone for admin writes — bypasses React cache so we never save a stale snapshot. */
 async function readCatalogForWrite(): Promise<Catalog> {
+  await connection();
   noStore();
   return loadCatalogDocument();
 }
@@ -27,8 +33,11 @@ async function writeCatalog(catalog: Catalog) {
   revalidatePath("/");
 }
 
-export function catalogStorageMode(): "database" | "file" {
-  return isDatabaseConfigured() ? "database" : "file";
+export function catalogStorageMode(): "database" {
+  if (!isDatabaseConfigured()) {
+    throw new Error("MySQL is required. Set DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME.");
+  }
+  return "database";
 }
 
 export async function upsertCategory(input: {

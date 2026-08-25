@@ -25,10 +25,8 @@ type CategoryPageProps = {
   searchParams: Promise<{ page?: string; preview?: string }>;
 };
 
-export async function generateStaticParams() {
-  const { categories } = await readCatalog();
-  return categories.map((item) => ({ slug: item.slug }));
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;

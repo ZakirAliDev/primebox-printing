@@ -1,4 +1,3 @@
-import catalogData from "@/data/catalog.json";
 import type { ColorScheme } from "@/lib/color-scheme";
 import {
   DEFAULT_LINK_TRANSITION_MS,
@@ -727,41 +726,6 @@ function normalizeTab(tab: ProductTab): ProductTab {
   };
 }
 
-export function getCatalog(): Catalog {
-  const data = catalogData as unknown as Partial<Catalog>;
-  return {
-    categories: (data.categories ?? []).map((item) => normalizeCategory(item as Category)),
-    packages: (data.packages ?? []).map(normalizePackage),
-    tabTemplates: (data.tabTemplates ?? DEFAULT_TAB_TEMPLATES).map(normalizeTabTemplate),
-    tags: data.tags ?? [],
-    attributes: data.attributes ?? [],
-    reviews: data.reviews ?? [],
-    productPageSettings: normalizeProductPageSettings(data.productPageSettings),
-    categoryPageSettings: normalizeCategoryPageSettings(data.categoryPageSettings),
-    siteSettings: normalizeSiteSettings(data.siteSettings),
-  };
-}
-
-export function getCategories() {
-  return getCatalog().categories;
-}
-
-export function getPackages() {
-  return getCatalog().packages;
-}
-
-export function getCategory(slug: string) {
-  return getCategories().find((item) => item.slug === slug);
-}
-
-export function getPackage(slug: string) {
-  return getPackages().find((item) => item.slug === slug);
-}
-
-export function packagesInCategory(slug: string) {
-  return getPackages().filter((item) => item.categorySlugs.includes(slug));
-}
-
 export function packageCoverImage(item: Pick<Package, "image" | "gallery">) {
   const image = item.image?.trim();
   if (image) {
@@ -770,7 +734,7 @@ export function packageCoverImage(item: Pick<Package, "image" | "gallery">) {
   return item.gallery?.find((src) => src.trim()) ?? "";
 }
 
-export function relatedPackages(item: Package, allPackages = getPackages()) {
+export function relatedPackages(item: Package, allPackages: Package[]) {
   if (item.relatedMode === "manual") {
     const seen = new Set<string>();
     return item.relatedSlugs

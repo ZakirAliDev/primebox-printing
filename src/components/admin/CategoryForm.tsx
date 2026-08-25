@@ -45,6 +45,7 @@ export function CategoryForm({
         {category ? <input type="hidden" name="originalSlug" value={category.slug} /> : null}
         <TitlePermalink
           key={category?.slug ?? "new"}
+          formId={FORM_ID}
           defaultName={category?.name}
           defaultSlug={category?.slug}
           prefix="/package-category/"

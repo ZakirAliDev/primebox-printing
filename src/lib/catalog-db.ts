@@ -1,6 +1,3 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
-
 import type { Catalog, Category, Package, ProductAttribute, ProductReview, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
 import {
   DEFAULT_TAB_TEMPLATES,
@@ -14,9 +11,8 @@ import {
 import { ensureDatabaseSchema, getPrisma, isDatabaseConfigured } from "@/lib/db";
 
 const CATALOG_DOC_ID = 1;
-const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
 
-export type CatalogSource = "database" | "file";
+export type CatalogSource = "database";
 
 export function parseCatalog(data: Partial<Catalog> | null | undefined): Catalog {
   const raw = data ?? {};
@@ -33,6 +29,10 @@ export function parseCatalog(data: Partial<Catalog> | null | undefined): Catalog
   };
 }
 
+function emptyCatalog(): Catalog {
+  return parseCatalog({});
+}
+
 function coerceCatalogJson(data: unknown): Partial<Catalog> {
   if (data == null) {
     return {};
@@ -43,9 +43,12 @@ function coerceCatalogJson(data: unknown): Partial<Catalog> {
   return data as Partial<Catalog>;
 }
 
-async function loadCatalogFromFile(): Promise<Catalog> {
-  const raw = await fs.readFile(catalogPath, "utf8");
-  return parseCatalog(JSON.parse(raw) as Partial<Catalog>);
+function requireDatabase() {
+  if (!isDatabaseConfigured()) {
+    throw new Error(
+      "MySQL is required. Set DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, and DB_NAME (or DATABASE_URL).",
+    );
+  }
 }
 
 async function readCatalogRow(): Promise<{ catalog: Catalog; updatedAt: Date } | null> {
@@ -60,12 +63,8 @@ async function readCatalogRow(): Promise<{ catalog: Catalog; updatedAt: Date } |
   };
 }
 
-/**
- * Persist catalog via Prisma upsert, then read it back so we know MySQL actually stored it.
- */
 async function writeCatalogRow(catalog: Catalog): Promise<Catalog> {
   const prisma = getPrisma();
-  // Deep clone through JSON so Prisma receives a plain serializable object.
   const data = JSON.parse(JSON.stringify(catalog)) as object;
 
   await prisma.catalogDocument.upsert({
@@ -82,44 +81,23 @@ async function writeCatalogRow(catalog: Catalog): Promise<Catalog> {
 }
 
 export async function loadCatalogDocument(): Promise<Catalog> {
-  if (!isDatabaseConfigured()) {
-    return loadCatalogFromFile();
-  }
-
+  requireDatabase();
   await ensureDatabaseSchema();
 
-  try {
-    const existing = await readCatalogRow();
-    if (existing) {
-      return existing.catalog;
-    }
-
-    // First boot only: seed MySQL from the bundled JSON, then always use MySQL.
-    const seeded = await loadCatalogFromFile();
-    return writeCatalogRow(seeded);
-  } catch (error) {
-    // CRITICAL: never fall back to catalog.json when MySQL is configured.
-    // That caused admin saves to "work" while the storefront kept showing bundled text/images.
-    console.error("[catalog] MySQL required but unavailable.", error);
-    throw error;
+  const existing = await readCatalogRow();
+  if (existing) {
+    return existing.catalog;
   }
+
+  // First boot: empty catalog in MySQL (never seed from catalog.json at runtime).
+  return writeCatalogRow(emptyCatalog());
 }
 
 export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
-  if (!isDatabaseConfigured()) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        "DB_USER / DB_PASSWORD / DB_NAME (or DATABASE_URL) must be set. Catalog edits can’t persist without MySQL.",
-      );
-    }
-    await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
-    return;
-  }
-
+  requireDatabase();
   await ensureDatabaseSchema();
   const saved = await writeCatalogRow(catalog);
 
-  // Spot-check: saved category count must match what we intended to write.
   if (saved.categories.length !== catalog.categories.length) {
     throw new Error(
       `Catalog save verification failed (categories ${saved.categories.length} != ${catalog.categories.length}).`,
@@ -127,25 +105,10 @@ export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
   }
 }
 
-export async function seedCatalogFromJsonFile(force = false) {
-  if (!isDatabaseConfigured()) {
-    throw new Error("MySQL is required to seed the database.");
-  }
-  await ensureDatabaseSchema();
-  const existing = await readCatalogRow();
-  if (existing && !force) {
-    return { seeded: false, reason: "already-exists" as const };
-  }
-  const fromFile = await loadCatalogFromFile();
-  await writeCatalogRow(fromFile);
-  return { seeded: true, reason: "ok" as const };
-}
-
-/** Kept for callers that previously cleared an in-process memo (memo removed). */
-export function clearCatalogMemo() {
-  // no-op: catalog is always read fresh from MySQL when configured
-}
+/** Kept for older callers; memo no longer used. */
+export function clearCatalogMemo() {}
 
 export function getCatalogSource(): CatalogSource {
-  return isDatabaseConfigured() ? "database" : "file";
+  requireDatabase();
+  return "database";
 }

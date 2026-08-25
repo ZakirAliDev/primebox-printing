@@ -4,6 +4,10 @@ import { readCatalog } from "@/lib/catalog-store";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
+/** Catalog is MySQL-backed; never freeze the storefront at build time. */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

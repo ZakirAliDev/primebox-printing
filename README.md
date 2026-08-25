@@ -18,20 +18,13 @@ npm install
 docker compose up -d
 # Ensure .env.local has:
 # DATABASE_URL="mysql://primebox:primebox@127.0.0.1:3306/primebox"
-npm run db:setup
+npm run db:setup   # one-time: create tables + seed from src/data/catalog.json
 npm run dev
 ```
 
 Open http://localhost:3000
 
-Without MySQL env vars, the app reads/writes `src/data/catalog.json` (local only).
-
-## MySQL + speed
-
-- Catalog is one MySQL JSON row (`catalog_document`).
-- Storefront memos the catalog and only reloads when `updatedAt` changes.
-- Admin saves write MySQL and revalidate the site.
-- Tables are created automatically on first DB use.
+Runtime catalog is **MySQL only** — `catalog.json` is never read by the live app (seed script only).
 
 ## Hostinger production
 

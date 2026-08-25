@@ -1,4 +1,4 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { CategoryCard } from "@/components/CategoryCard";
 import {
   HomeBenefits,
@@ -23,18 +23,23 @@ import { normalizeHomeTestimonialsSettings } from "@/lib/home-testimonials";
 import { normalizeShopByIndustrySettings } from "@/lib/shop-by-industry";
 import { normalizeTrustBarSettings } from "@/lib/trust-bar";
 
-const TrustBar = dynamic(
+/** Never serve a build-time / Full Route Cache snapshot of Shop by industry cards. */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
+const TrustBar = nextDynamic(
   () => import("@/components/TrustBar").then((mod) => mod.TrustBar),
   { loading: () => <div className="h-16 bg-navy/[0.03]" aria-hidden="true" /> },
 );
 
-const RelatedProductsCarousel = dynamic(
+const RelatedProductsCarousel = nextDynamic(
   () =>
     import("@/components/RelatedProductsCarousel").then((mod) => mod.RelatedProductsCarousel),
   { loading: () => <div className="mt-8 h-72 rounded-lg bg-navy/[0.03]" aria-hidden="true" /> },
 );
 
-const QuoteForm = dynamic(
+const QuoteForm = nextDynamic(
   () => import("@/components/QuoteForm").then((mod) => mod.QuoteForm),
   { loading: () => <div className="mt-6 h-80 rounded-lg bg-white/60" aria-hidden="true" /> },
 );

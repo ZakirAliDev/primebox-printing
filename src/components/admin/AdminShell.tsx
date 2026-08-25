@@ -2,13 +2,11 @@ import Link from "next/link";
 import { logoutAction } from "@/app/admin/actions";
 import { AdminMenu } from "@/components/admin/AdminMenu";
 import { AdminPageBar, AdminPageBarProvider } from "@/components/admin/AdminPageBar";
-import { getCatalogSource } from "@/lib/catalog-db";
 import { isDatabaseConfigured } from "@/lib/db";
 import { SITE_NAME } from "@/lib/site";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const storageMode = getCatalogSource();
-  const productionWithoutDb = process.env.NODE_ENV === "production" && !isDatabaseConfigured();
+  const hasDb = isDatabaseConfigured();
 
   return (
     <div className="flex h-screen overflow-hidden bg-navy/[0.04] font-sans text-sm text-navy">
@@ -17,7 +15,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <Link href="/admin" className="border-b border-white/10 px-4 py-4">
             <span className="block text-[15px] font-semibold tracking-wide">{SITE_NAME.toUpperCase()}</span>
             <span className="text-[11px] font-normal text-white/60">
-              Admin · {storageMode === "database" ? "MySQL" : "file"}
+              Admin · {hasDb ? "MySQL" : "NO DATABASE"}
             </span>
           </Link>
           <AdminMenu />
@@ -39,23 +37,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <AdminPageBarProvider>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 py-3 pr-6 pl-3">
           <AdminPageBar />
-          {productionWithoutDb ? (
+          {!hasDb ? (
             <div
-              className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-950"
-              role="status"
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm text-red-950"
+              role="alert"
             >
-              MySQL is not configured. Set <strong>DB_USER</strong>, <strong>DB_PASSWORD</strong>,{" "}
-              <strong>DB_NAME</strong> (and optional <strong>DB_HOST</strong>) on Hostinger. See{" "}
-              <code className="text-xs">.env.example</code>.
-            </div>
-          ) : null}
-          {storageMode === "file" ? (
-            <div
-              className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-950"
-              role="status"
-            >
-              Catalog is reading from <strong>catalog.json</strong> (not MySQL). Admin edits will not match the
-              live storefront until database env vars are set.
+              MySQL is required. Set <strong>DB_USER</strong>, <strong>DB_PASSWORD</strong>,{" "}
+              <strong>DB_NAME</strong>, <strong>DB_HOST</strong>=127.0.0.1 on Hostinger.{" "}
+              <code className="text-xs">catalog.json</code> is no longer used at runtime.
             </div>
           ) : null}
           <div className="min-h-0 flex-1 overflow-auto">{children}</div>
