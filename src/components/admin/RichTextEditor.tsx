@@ -230,7 +230,7 @@ export function RichTextEditor({
 
   return (
     <div className={`wp-classic-editor relative z-10 ${compact ? "compact-toolbar" : ""}`}>
-      {name ? <input ref={hiddenRef} type="hidden" name={name} defaultValue={defaultValue} /> : null}
+      {name ? <input ref={hiddenRef} type="hidden" name={name} value={html} readOnly /> : null}
       <input
         ref={fileRef}
         type="file"

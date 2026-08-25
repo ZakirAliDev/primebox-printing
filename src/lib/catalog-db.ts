@@ -16,13 +16,7 @@ import { ensureDatabaseSchema, getPrisma, isDatabaseConfigured } from "@/lib/db"
 const CATALOG_DOC_ID = 1;
 const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
 
-type CatalogMemo = { version: string; catalog: Catalog };
-
-let catalogMemo: CatalogMemo | null = null;
-
-function cloneCatalog(catalog: Catalog): Catalog {
-  return structuredClone(catalog);
-}
+export type CatalogSource = "database" | "file";
 
 export function parseCatalog(data: Partial<Catalog> | null | undefined): Catalog {
   const raw = data ?? {};
@@ -39,100 +33,121 @@ export function parseCatalog(data: Partial<Catalog> | null | undefined): Catalog
   };
 }
 
-export function clearCatalogMemo() {
-  catalogMemo = null;
+function coerceCatalogJson(data: unknown): Partial<Catalog> {
+  if (data == null) {
+    return {};
+  }
+  if (typeof data === "string") {
+    return JSON.parse(data) as Partial<Catalog>;
+  }
+  return data as Partial<Catalog>;
 }
 
-async function loadCatalogFromFile(): Promise<{ catalog: Catalog; version: string }> {
-  const [raw, stats] = await Promise.all([fs.readFile(catalogPath, "utf8"), fs.stat(catalogPath)]);
-  return { catalog: parseCatalog(JSON.parse(raw) as Partial<Catalog>), version: `file:${stats.mtimeMs}` };
+async function loadCatalogFromFile(): Promise<Catalog> {
+  const raw = await fs.readFile(catalogPath, "utf8");
+  return parseCatalog(JSON.parse(raw) as Partial<Catalog>);
 }
 
-async function loadCatalogFromDatabase(): Promise<{ catalog: Catalog; version: string }> {
-  await ensureDatabaseSchema();
+async function readCatalogRow(): Promise<{ catalog: Catalog; updatedAt: Date } | null> {
   const prisma = getPrisma();
   const row = await prisma.catalogDocument.findUnique({ where: { id: CATALOG_DOC_ID } });
   if (!row) {
-    // First boot: seed from bundled JSON so the site never starts empty.
-    const fromFile = await loadCatalogFromFile();
-    const created = await prisma.catalogDocument.create({
-      data: { id: CATALOG_DOC_ID, data: fromFile.catalog as object },
-    });
-    return {
-      catalog: parseCatalog(created.data as Partial<Catalog>),
-      version: `db:${created.updatedAt.getTime()}`,
-    };
+    return null;
   }
   return {
-    catalog: parseCatalog(row.data as Partial<Catalog>),
-    version: `db:${row.updatedAt.getTime()}`,
+    catalog: parseCatalog(coerceCatalogJson(row.data)),
+    updatedAt: row.updatedAt,
   };
 }
 
+/**
+ * Persist catalog with a raw MySQL upsert so the JSON document always replaces fully.
+ * Then read it back — if read-back fails, the save did not stick.
+ */
+async function writeCatalogRow(catalog: Catalog): Promise<Catalog> {
+  const prisma = getPrisma();
+  const payload = JSON.stringify(catalog);
+
+  await prisma.$executeRaw`
+    INSERT INTO \`catalog_document\` (\`id\`, \`data\`, \`updatedAt\`)
+    VALUES (${CATALOG_DOC_ID}, CAST(${payload} AS JSON), NOW(3))
+    ON DUPLICATE KEY UPDATE
+      \`data\` = CAST(${payload} AS JSON),
+      \`updatedAt\` = NOW(3)
+  `;
+
+  const verify = await readCatalogRow();
+  if (!verify) {
+    throw new Error("Catalog save failed: MySQL row missing after write.");
+  }
+  return verify.catalog;
+}
+
 export async function loadCatalogDocument(): Promise<Catalog> {
-  const useDb = isDatabaseConfigured();
-
-  if (useDb) {
-    try {
-      await ensureDatabaseSchema();
-      const prisma = getPrisma();
-      if (catalogMemo?.version.startsWith("db:")) {
-        const meta = await prisma.catalogDocument.findUnique({
-          where: { id: CATALOG_DOC_ID },
-          select: { updatedAt: true },
-        });
-        const version = meta ? `db:${meta.updatedAt.getTime()}` : null;
-        if (version && catalogMemo.version === version) {
-          return cloneCatalog(catalogMemo.catalog);
-        }
-      }
-      const loaded = await loadCatalogFromDatabase();
-      catalogMemo = { version: loaded.version, catalog: loaded.catalog };
-      return cloneCatalog(loaded.catalog);
-    } catch (error) {
-      // Never serve stale bundled JSON in production when MySQL is configured.
-      // That made admin saves "work" while the storefront kept showing catalog.json.
-      if (process.env.NODE_ENV === "production") {
-        console.error("[catalog] MySQL read failed in production.", error);
-        throw error;
-      }
-      console.warn("[catalog] MySQL unavailable, using catalog.json fallback.", error);
-    }
+  if (!isDatabaseConfigured()) {
+    return loadCatalogFromFile();
   }
 
-  if (catalogMemo?.version.startsWith("file:")) {
-    const stats = await fs.stat(catalogPath);
-    if (catalogMemo.version === `file:${stats.mtimeMs}`) {
-      return cloneCatalog(catalogMemo.catalog);
+  await ensureDatabaseSchema();
+
+  try {
+    const existing = await readCatalogRow();
+    if (existing) {
+      return existing.catalog;
     }
+
+    // First boot only: seed MySQL from the bundled JSON, then always use MySQL.
+    const seeded = await loadCatalogFromFile();
+    return writeCatalogRow(seeded);
+  } catch (error) {
+    // CRITICAL: never fall back to catalog.json when MySQL is configured.
+    // That caused admin saves to "work" while the storefront kept showing bundled text/images.
+    console.error("[catalog] MySQL required but unavailable.", error);
+    throw error;
   }
-  const loaded = await loadCatalogFromFile();
-  catalogMemo = { version: loaded.version, catalog: loaded.catalog };
-  return cloneCatalog(loaded.catalog);
 }
 
 export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
   if (!isDatabaseConfigured()) {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
-        "DATABASE_URL (or DB_USER / DB_PASSWORD / DB_NAME) is not set. Catalog edits can’t persist without MySQL.",
+        "DB_USER / DB_PASSWORD / DB_NAME (or DATABASE_URL) must be set. Catalog edits can’t persist without MySQL.",
       );
     }
     await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
-    clearCatalogMemo();
     return;
   }
 
   await ensureDatabaseSchema();
-  const prisma = getPrisma();
-  // Plain JSON so Prisma/MySQL always persist a fresh document (no shared object refs).
-  const data = JSON.parse(JSON.stringify(catalog)) as object;
-  await prisma.catalogDocument.upsert({
-    where: { id: CATALOG_DOC_ID },
-    create: { id: CATALOG_DOC_ID, data },
-    update: { data },
-  });
-  // Never trust upsert()'s returned JSON for the memo — MySQL can echo a stale
-  // document while updatedAt advances, which made the storefront miss new images.
-  clearCatalogMemo();
+  const saved = await writeCatalogRow(catalog);
+
+  // Spot-check: saved category count must match what we intended to write.
+  if (saved.categories.length !== catalog.categories.length) {
+    throw new Error(
+      `Catalog save verification failed (categories ${saved.categories.length} != ${catalog.categories.length}).`,
+    );
+  }
+}
+
+export async function seedCatalogFromJsonFile(force = false) {
+  if (!isDatabaseConfigured()) {
+    throw new Error("MySQL is required to seed the database.");
+  }
+  await ensureDatabaseSchema();
+  const existing = await readCatalogRow();
+  if (existing && !force) {
+    return { seeded: false, reason: "already-exists" as const };
+  }
+  const fromFile = await loadCatalogFromFile();
+  await writeCatalogRow(fromFile);
+  return { seeded: true, reason: "ok" as const };
+}
+
+/** Kept for callers that previously cleared an in-process memo (memo removed). */
+export function clearCatalogMemo() {
+  // no-op: catalog is always read fresh from MySQL when configured
+}
+
+export function getCatalogSource(): CatalogSource {
+  return isDatabaseConfigured() ? "database" : "file";
 }
