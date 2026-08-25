@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { adminBox, adminBoxHead, adminField, adminMuted } from "@/components/admin/ui";
+import { adminBox, adminBoxHead, adminMuted } from "@/components/admin/ui";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 const FORM_ID = "category-save";
@@ -15,6 +15,8 @@ export function CategoryImageFields({ image = "" }: { image?: string }) {
     <div className={adminBox}>
       <h2 className={adminBoxHead}>Home card image</h2>
       <div className="space-y-3 p-3">
+        {/* Always submit image (even empty) so Update never drops a saved path. */}
+        <input form={FORM_ID} type="hidden" name="image" value={featured} />
         <label className="block cursor-pointer">
           {featuredSrc ? (
             <img src={featuredSrc} alt="" className="aspect-square w-full rounded object-cover bg-navy/5" />
@@ -23,7 +25,6 @@ export function CategoryImageFields({ image = "" }: { image?: string }) {
               No home card image
             </div>
           )}
-          {featured ? <input form={FORM_ID} type="hidden" name="image" value={featured} /> : null}
           <span className={`mt-3 block text-xs ${adminMuted}`}>Shown on Shop by industry cards on the home page.</span>
           <input
             form={FORM_ID}

@@ -127,13 +127,12 @@ export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
   const prisma = getPrisma();
   // Plain JSON so Prisma/MySQL always persist a fresh document (no shared object refs).
   const data = JSON.parse(JSON.stringify(catalog)) as object;
-  const saved = await prisma.catalogDocument.upsert({
+  await prisma.catalogDocument.upsert({
     where: { id: CATALOG_DOC_ID },
     create: { id: CATALOG_DOC_ID, data },
     update: { data },
   });
-  catalogMemo = {
-    version: `db:${saved.updatedAt.getTime()}`,
-    catalog: parseCatalog(saved.data as Partial<Catalog>),
-  };
+  // Never trust upsert()'s returned JSON for the memo — MySQL can echo a stale
+  // document while updatedAt advances, which made the storefront miss new images.
+  clearCatalogMemo();
 }

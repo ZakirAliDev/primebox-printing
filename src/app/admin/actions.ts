@@ -86,8 +86,8 @@ export async function saveCategoryAction(formData: FormData) {
       cardSupportingText: draft.cardSupportingText,
       image: draft.image,
       parentSlug: draft.parentSlug,
+      productSlugs: draft.productSlugs,
     });
-    await setCategoryProducts(saved.slug, draft.productSlugs);
     redirect(`/admin/products/categories/${saved.slug}?${originalSlug ? "updated" : "created"}=1`);
   } catch (error) {
     if (isRedirectError(error)) {

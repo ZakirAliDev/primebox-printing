@@ -40,6 +40,8 @@ export async function upsertCategory(input: {
   cardSupportingText: string;
   image: string;
   parentSlug: string;
+  /** When set, category↔product links are updated in the same write (avoids a second stale read). */
+  productSlugs?: string[];
 }) {
   const catalog = await readCatalogForWrite();
   const slug = slugify(input.slug || input.name);
@@ -72,6 +74,22 @@ export async function upsertCategory(input: {
     }));
   }
   catalog.categories.push(next);
+
+  if (input.productSlugs) {
+    const selected = new Set(input.productSlugs.filter(Boolean));
+    catalog.packages = catalog.packages.map((item) => {
+      const inCategory = item.categorySlugs.includes(slug);
+      const shouldBe = selected.has(item.slug);
+      if (inCategory === shouldBe) {
+        return item;
+      }
+      if (shouldBe) {
+        return { ...item, categorySlugs: [...item.categorySlugs, slug] };
+      }
+      return { ...item, categorySlugs: item.categorySlugs.filter((value) => value !== slug) };
+    });
+  }
+
   await writeCatalog(catalog);
   return next;
 }
