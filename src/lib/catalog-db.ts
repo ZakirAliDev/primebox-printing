@@ -61,20 +61,18 @@ async function readCatalogRow(): Promise<{ catalog: Catalog; updatedAt: Date } |
 }
 
 /**
- * Persist catalog with a raw MySQL upsert so the JSON document always replaces fully.
- * Then read it back — if read-back fails, the save did not stick.
+ * Persist catalog via Prisma upsert, then read it back so we know MySQL actually stored it.
  */
 async function writeCatalogRow(catalog: Catalog): Promise<Catalog> {
   const prisma = getPrisma();
-  const payload = JSON.stringify(catalog);
+  // Deep clone through JSON so Prisma receives a plain serializable object.
+  const data = JSON.parse(JSON.stringify(catalog)) as object;
 
-  await prisma.$executeRaw`
-    INSERT INTO \`catalog_document\` (\`id\`, \`data\`, \`updatedAt\`)
-    VALUES (${CATALOG_DOC_ID}, CAST(${payload} AS JSON), NOW(3))
-    ON DUPLICATE KEY UPDATE
-      \`data\` = CAST(${payload} AS JSON),
-      \`updatedAt\` = NOW(3)
-  `;
+  await prisma.catalogDocument.upsert({
+    where: { id: CATALOG_DOC_ID },
+    create: { id: CATALOG_DOC_ID, data },
+    update: { data },
+  });
 
   const verify = await readCatalogRow();
   if (!verify) {
