@@ -1,6 +1,6 @@
 import path from "node:path";
 import { promises as fs } from "node:fs";
-import { storeUploadBytes, storeUploadFile, useBlobStorage } from "@/lib/media-storage";
+import { storeUploadFile } from "@/lib/media-storage";
 
 const ALLOWED_TYPES = new Map([
   ["image/jpeg", "jpg"],
@@ -58,9 +58,5 @@ export async function saveCategoryImage(slug: string, file: File) {
 }
 
 export async function deleteCategoryUploads(slug: string) {
-  if (useBlobStorage()) {
-    // Blob objects are left in place; catalog no longer references them.
-    return;
-  }
   await fs.rm(uploadDir(slug), { recursive: true, force: true });
 }

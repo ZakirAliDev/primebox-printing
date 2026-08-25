@@ -7,7 +7,8 @@ Catalog and quote forms on the public site. Admin creates customer accounts and 
 ## Stack
 
 - Next.js 16 (App Router)
-- MySQL (catalog source of truth) + cache-first reads for page speed
+- Hostinger MySQL (catalog source of truth) + cache-first reads for page speed
+- Local disk uploads under `public/uploads/`
 - Stripe (payments) — planned
 
 ## Local development
@@ -23,30 +24,32 @@ npm run dev
 
 Open http://localhost:3000
 
-Without `DATABASE_URL`, the app reads/writes `src/data/catalog.json` (local only — writes fail on Vercel).
+Without MySQL env vars, the app reads/writes `src/data/catalog.json` (local only).
 
 ## MySQL + speed
 
 - Catalog is one MySQL JSON row (`catalog_document`).
 - Storefront memos the catalog and only reloads when `updatedAt` changes.
 - Admin saves write MySQL and revalidate the site.
+- Tables are created automatically on first DB use.
 
-## Vercel (client review)
+## Hostinger production
 
-1. Create hosted MySQL (Railway, Aiven, or Hostinger remote).
-2. Add `DATABASE_URL` to the Vercel project environment.
-3. Locally with that URL: `npx prisma db push && npx tsx scripts/seed-catalog-db.ts`
-4. Redeploy.
+1. Create a MySQL database + user in hPanel → **Databases**.
+2. Set environment variables on the Node app:
 
-Later on Hostinger/SiteGround: same schema — point `DATABASE_URL` at their MySQL.
+```text
+ADMIN_PASSWORD=…          # admin login
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=…                 # e.g. u821685055_primebox_admin
+DB_PASSWORD=…             # MySQL password
+DB_NAME=…                 # e.g. u821685055_primebox
+```
 
-## Image uploads (Vercel Blob)
+Do **not** set Railway or Vercel Blob variables.
 
-On Vercel, new admin image uploads go to **Vercel Blob** (not the server disk).
+3. Deploy from GitHub (`main`), Node.js / Next.js.
+4. After the first page load or admin save, phpMyAdmin should show `catalog_document` and `admin_preview`.
 
-1. Vercel project → **Storage** → **Create** → **Blob** (Public access).
-2. Connect it to this project (Production + Preview). Vercel adds `BLOB_READ_WRITE_TOKEN`.
-3. Redeploy.
-4. Optional locally: `npx vercel env pull` so uploads work in `npm run dev` too.
-
-Without the token, local uploads still use `public/uploads/…`.
+Images upload to `public/uploads/` on the Hostinger disk.

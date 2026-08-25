@@ -17,7 +17,7 @@ model CatalogDocument {
   @@map("catalog_document")
 }
 
-/// Short-lived admin Preview drafts. MySQL so Vercel can create/read without a writable FS.
+/// Short-lived admin Preview drafts stored in MySQL.
 model AdminPreviewRecord {
   token     String   @id @db.VarChar(64)
   data      Json

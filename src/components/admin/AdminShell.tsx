@@ -7,7 +7,7 @@ import { SITE_NAME } from "@/lib/site";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const storageMode = isDatabaseConfigured() ? "database" : "file";
-  const onVercelWithoutDb = Boolean(process.env.VERCEL) && storageMode === "file";
+  const productionWithoutDb = process.env.NODE_ENV === "production" && storageMode === "file";
 
   return (
     <div className="flex h-screen overflow-hidden bg-navy/[0.04] font-sans text-sm text-navy">
@@ -36,13 +36,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <AdminPageBarProvider>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 py-3 pr-6 pl-3">
           <AdminPageBar />
-          {onVercelWithoutDb ? (
+          {productionWithoutDb ? (
             <div
               className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-950"
               role="status"
             >
-              <strong>DATABASE_URL</strong> is missing. Catalog saves will not persist on Vercel until MySQL
-              is connected. See <code className="text-xs">.env.example</code>.
+              MySQL is not configured. Set <strong>DB_USER</strong>, <strong>DB_PASSWORD</strong>,{" "}
+              <strong>DB_NAME</strong> (and optional <strong>DB_HOST</strong>) on Hostinger, or{" "}
+              <strong>DATABASE_URL</strong>. See <code className="text-xs">.env.example</code>.
             </div>
           ) : null}
           <div className="min-h-0 flex-1 overflow-auto">{children}</div>

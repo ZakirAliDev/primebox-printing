@@ -8,6 +8,7 @@ import { config } from "dotenv";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { PrismaClient } from "@prisma/client";
+import { resolveDatabaseUrl } from "../src/lib/db";
 
 config({ path: ".env.local" });
 config({ path: ".env" });
@@ -16,9 +17,11 @@ const force = process.argv.includes("--force");
 const catalogPath = path.join(process.cwd(), "src/data/catalog.json");
 
 async function main() {
-  if (!process.env.DATABASE_URL?.trim()) {
-    throw new Error("DATABASE_URL is required");
+  const url = resolveDatabaseUrl();
+  if (!url) {
+    throw new Error("Set DATABASE_URL or DB_USER / DB_PASSWORD / DB_NAME");
   }
+  process.env.DATABASE_URL = url;
   const prisma = new PrismaClient();
   try {
     const existing = await prisma.catalogDocument.findUnique({ where: { id: 1 } });

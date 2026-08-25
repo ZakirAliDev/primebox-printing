@@ -1,6 +1,6 @@
 import path from "node:path";
 import { promises as fs } from "node:fs";
-import { storeUploadBytes, storeUploadFile, useBlobStorage } from "@/lib/media-storage";
+import { storeUploadBytes, storeUploadFile } from "@/lib/media-storage";
 
 const ALLOWED_TYPES = new Map([
   ["image/jpeg", "jpg"],
@@ -119,8 +119,5 @@ export async function saveProductImages(slug: string, files: File[]) {
 }
 
 export async function deleteProductUploads(slug: string) {
-  if (useBlobStorage()) {
-    return;
-  }
   await fs.rm(uploadDir(slug), { recursive: true, force: true });
 }

@@ -1,12 +1,7 @@
-import { put } from "@vercel/blob";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-/** Prefer Blob whenever a token exists (Vercel prod + local with env pull). */
-export function useBlobStorage() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
-}
-
+/** Hostinger (and local): store uploads on disk under public/. */
 export async function storeUploadBytes(options: {
   pathname: string;
   bytes: Uint8Array | Buffer;
@@ -14,22 +9,6 @@ export async function storeUploadBytes(options: {
   localAbsolutePath: string;
   localPublicUrl: string;
 }): Promise<string> {
-  if (useBlobStorage()) {
-    const body = Buffer.isBuffer(options.bytes) ? options.bytes : Buffer.from(options.bytes);
-    const blob = await put(options.pathname, body, {
-      access: "public",
-      contentType: options.contentType,
-      addRandomSuffix: false,
-    });
-    return blob.url;
-  }
-
-  if (process.env.VERCEL) {
-    throw new Error(
-      "Image uploads need Vercel Blob. Create a Blob store in the Vercel project (Storage → Blob) so BLOB_READ_WRITE_TOKEN is set.",
-    );
-  }
-
   await fs.mkdir(path.dirname(options.localAbsolutePath), { recursive: true });
   await fs.writeFile(options.localAbsolutePath, options.bytes);
   return options.localPublicUrl;

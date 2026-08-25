@@ -105,9 +105,9 @@ export async function loadCatalogDocument(): Promise<Catalog> {
 
 export async function saveCatalogDocument(catalog: Catalog): Promise<void> {
   if (!isDatabaseConfigured()) {
-    if (process.env.VERCEL || process.env.HOSTINGER) {
+    if (process.env.NODE_ENV === "production") {
       throw new Error(
-        "DATABASE_URL is not set. Catalog edits can’t persist without MySQL.",
+        "DATABASE_URL (or DB_USER / DB_PASSWORD / DB_NAME) is not set. Catalog edits can’t persist without MySQL.",
       );
     }
     await fs.writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");

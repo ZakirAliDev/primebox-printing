@@ -3,16 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "*.public.blob.vercel-storage.com",
-      },
-      {
-        protocol: "https",
-        hostname: "*.blob.vercel-storage.com",
-      },
-    ],
   },
   experimental: {
     serverActions: {
@@ -23,8 +13,8 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 
-// Cloudflare OpenNext local wiring — skip on Vercel builds.
-if (!process.env.VERCEL) {
+// Optional local Cloudflare OpenNext wiring (dev only).
+if (process.env.NODE_ENV !== "production") {
   const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare") as {
     initOpenNextCloudflareForDev: () => void;
   };
