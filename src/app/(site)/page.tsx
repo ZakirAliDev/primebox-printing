@@ -68,7 +68,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-10 sm:py-12 md:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl md:text-[2rem] md:leading-tight">
-            Custom &amp; Graphic Packaging Solutions for Your Brand
+            Custom &amp; Graphic Packaging Solutions for Your Brand one
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-muted sm:mt-4 sm:text-base md:text-[1.05rem] md:leading-7">
             Prime Box Printing offer top-quality custom packaging and graphic packaging
