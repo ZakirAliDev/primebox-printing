@@ -69,6 +69,15 @@ export async function ensureDatabaseSchema(): Promise<void> {
           INDEX \`admin_preview_expiresAt_idx\` (\`expiresAt\`)
         )
       `);
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS \`media_asset\` (
+          \`path\` VARCHAR(512) NOT NULL,
+          \`contentType\` VARCHAR(128) NOT NULL,
+          \`data\` LONGBLOB NOT NULL,
+          \`updatedAt\` DATETIME(3) NOT NULL,
+          PRIMARY KEY (\`path\`)
+        )
+      `);
     })().catch((error) => {
       globalForPrisma.catalogSchemaReady = undefined;
       throw error;

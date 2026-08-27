@@ -47,4 +47,4 @@ Do **not** set Railway or Vercel Blob variables.
 3. Deploy from GitHub (`main`), Node.js / Next.js.
 4. After the first page load or admin save, phpMyAdmin should show `catalog_document` and `admin_preview`.
 
-Images are stored outside the deploy folder (`persistent-uploads`) so **redeploy / restart does not delete them**. If an image already 404s, re-upload it once in admin after this fix is live.
+Images are stored in **MySQL** (`media_asset`) plus a disk cache. Redeploy/restart cannot wipe them. If a category still shows a broken image, its URL points at an old deleted file — open that category in admin, choose a new Home card image, and Update.

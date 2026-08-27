@@ -27,3 +27,13 @@ model AdminPreviewRecord {
   @@index([expiresAt])
   @@map("admin_preview")
 }
+
+/// Uploaded files (images). Survives Hostinger redeploys that wipe the app disk.
+model MediaAsset {
+  path        String   @id @db.VarChar(512)
+  contentType String   @db.VarChar(128)
+  data        Bytes
+  updatedAt   DateTime @updatedAt
+
+  @@map("media_asset")
+}

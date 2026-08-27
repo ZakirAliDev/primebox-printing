@@ -34,6 +34,9 @@ async function readCatalogForWrite(): Promise<Catalog> {
 async function invalidateStorefrontCache() {
   updateTag(CATALOG_CACHE_TAG);
   revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/package-category", "layout");
+  revalidatePath("/packages", "layout");
 }
 
 async function writeCatalog(catalog: Catalog) {
