@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { AdminNotice } from "@/components/admin/AdminNotice";
 import { TemplateForm } from "@/components/admin/TemplateForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Edit template" };
 
@@ -15,7 +15,7 @@ export default async function EditTemplatePage({ params, searchParams }: EditTem
   await requireAdmin();
   const { slug } = await params;
   const { created, updated } = await searchParams;
-  const template = (await readCatalog()).tabTemplates.find((item) => item.slug === slug);
+  const template = (await readCatalogLive()).tabTemplates.find((item) => item.slug === slug);
   if (!template) {
     notFound();
   }

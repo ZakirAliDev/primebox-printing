@@ -1,6 +1,5 @@
 import { cache } from "react";
-import { connection } from "next/server";
-import { revalidatePath, unstable_noStore as noStore } from "next/cache";
+import { revalidatePath, unstable_cache, updateTag } from "next/cache";
 import { deleteCategoryUploads } from "@/lib/category-media";
 import type { Catalog, Category, CategoryPageSettings, Package, ProductAttribute, ProductFaq, ProductPageSettings, ProductTab, RelatedMode, SiteSettings, TabTemplate, Tag } from "@/lib/catalog";
 import { layoutToHtml } from "@/lib/template-layout";
@@ -10,27 +9,36 @@ import { isDatabaseConfigured } from "@/lib/db";
 import { deleteProductUploads, saveRemoteProductImage } from "@/lib/product-media";
 import { resolveCategorySlugs, type ProductCsvRow } from "@/lib/product-csv";
 
-/**
- * Within-request dedupe. connection() + noStore() bail out of Full Route Cache /
- * prerender so Hostinger hard-refresh never serves a year-old homepage snapshot.
- */
-export const readCatalog = cache(async () => {
-  await connection();
-  noStore();
-  return loadCatalogDocument();
-});
+/** Bust this tag on every admin catalog write. */
+export const CATALOG_CACHE_TAG = "catalog";
 
-/** Fresh clone for admin writes — bypasses React cache so we never save a stale snapshot. */
+/** Storefront pages: cache catalog in memory between MySQL reads (seconds). */
+export const STOREFRONT_REVALIDATE_SECONDS = 300;
+
+const loadCachedCatalog = unstable_cache(
+  async () => loadCatalogDocument(),
+  ["catalog-document"],
+  { revalidate: STOREFRONT_REVALIDATE_SECONDS, tags: [CATALOG_CACHE_TAG] },
+);
+
+/** Cached catalog for public pages (deduped per request). */
+export const readCatalog = cache(async () => loadCachedCatalog());
+
+/** Uncached catalog for admin screens and server actions that must see latest data. */
+export const readCatalogLive = cache(async () => loadCatalogDocument());
+
 async function readCatalogForWrite(): Promise<Catalog> {
-  await connection();
-  noStore();
   return loadCatalogDocument();
+}
+
+async function invalidateStorefrontCache() {
+  updateTag(CATALOG_CACHE_TAG);
+  revalidatePath("/", "layout");
 }
 
 async function writeCatalog(catalog: Catalog) {
   await saveCatalogDocument(catalog);
-  revalidatePath("/", "layout");
-  revalidatePath("/");
+  await invalidateStorefrontCache();
 }
 
 export function catalogStorageMode(): "database" {

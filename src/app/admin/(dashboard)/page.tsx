@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AdminPageActions, AdminPageIntro } from "@/components/admin/AdminPageBar";
 import { adminAddNew } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 import { plainTextFromHtml } from "@/lib/rich-text";
 
 export const metadata = {
@@ -12,7 +12,7 @@ export const metadata = {
 
 export default async function AdminPage() {
   await requireAdmin();
-  const { categories, packages, tags, attributes, reviews } = await readCatalog();
+  const { categories, packages, tags, attributes, reviews } = await readCatalogLive();
   const recentProducts = [...packages].slice(-6).reverse();
   const categoryPreview = categories.slice(0, 6).map((category) => ({
     ...category,

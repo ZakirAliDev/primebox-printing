@@ -1,4 +1,5 @@
 import nextDynamic from "next/dynamic";
+import { CategoryCard } from "@/components/CategoryCard";
 import {
   HomeBenefits,
   HomeProcess,
@@ -10,9 +11,9 @@ import {
   HomeWhyChoose,
 } from "@/components/HomeHardcodedSections";
 import { HomeHero } from "@/components/HomeHero";
-import { ShopByIndustrySection } from "@/components/ShopByIndustrySection";
+import { TrustBar } from "@/components/TrustBar";
 import { packageCoverImage } from "@/lib/catalog";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalog, STOREFRONT_REVALIDATE_SECONDS } from "@/lib/catalog-store";
 import {
   FEATURED_CATEGORY_SUBTITLE,
   FEATURED_CATEGORY_TITLE,
@@ -23,15 +24,7 @@ import { normalizeHomeTestimonialsSettings } from "@/lib/home-testimonials";
 import { normalizeShopByIndustrySettings } from "@/lib/shop-by-industry";
 import { normalizeTrustBarSettings } from "@/lib/trust-bar";
 
-/** Never serve a build-time / Full Route Cache snapshot of Shop by industry cards. */
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
-
-const TrustBar = nextDynamic(
-  () => import("@/components/TrustBar").then((mod) => mod.TrustBar),
-  { loading: () => <div className="h-16 bg-navy/[0.03]" aria-hidden="true" /> },
-);
+export const revalidate = STOREFRONT_REVALIDATE_SECONDS;
 
 const RelatedProductsCarousel = nextDynamic(
   () =>
@@ -86,19 +79,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <ShopByIndustrySection
-        initial={{
-          title: shopByIndustry.title,
-          subtitle: shopByIndustry.subtitle,
-          industries: industries.map((industry) => ({
-            slug: industry.slug,
-            name: industry.name,
-            description: industry.summary,
-            supportingText: industry.cardSupportingText,
-            image: industry.image,
-          })),
-        }}
-      />
+      {industries.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-4 py-16">
+          <h2 className="text-3xl font-semibold">{shopByIndustry.title}</h2>
+          {shopByIndustry.subtitle ? (
+            <p className="mt-2 max-w-2xl text-muted">{shopByIndustry.subtitle}</p>
+          ) : null}
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2">
+            {industries.map((industry) => (
+              <li key={industry.slug}>
+                <CategoryCard
+                  item={{
+                    slug: industry.slug,
+                    name: industry.name,
+                    description: industry.summary,
+                    supportingText: industry.cardSupportingText,
+                    image: industry.image,
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <HomeProcess />
       <HomeStats />

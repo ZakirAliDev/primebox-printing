@@ -17,7 +17,7 @@ import {
   parseCategoryPageNumber,
   type Category,
 } from "@/lib/catalog";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalog, STOREFRONT_REVALIDATE_SECONDS } from "@/lib/catalog-store";
 import { plainTextFromHtml } from "@/lib/rich-text";
 
 type CategoryPageProps = {
@@ -25,8 +25,7 @@ type CategoryPageProps = {
   searchParams: Promise<{ page?: string; preview?: string }>;
 };
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = STOREFRONT_REVALIDATE_SECONDS;
 
 export async function generateMetadata({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;

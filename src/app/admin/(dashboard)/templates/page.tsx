@@ -6,7 +6,7 @@ import { ConfirmSubmit } from "@/components/admin/ConfirmSubmit";
 import { RowActions } from "@/components/admin/RowActions";
 import { adminAddNew } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 import { plainTextFromLayout } from "@/lib/template-layout";
 
 export const metadata = { title: "Templates" };
@@ -18,7 +18,7 @@ type PageProps = {
 export default async function AdminTemplatesPage({ searchParams }: PageProps) {
   await requireAdmin();
   const { q = "", deleted } = await searchParams;
-  const { tabTemplates } = await readCatalog();
+  const { tabTemplates } = await readCatalogLive();
   const query = q.trim().toLowerCase();
   const rows = query
     ? tabTemplates.filter(

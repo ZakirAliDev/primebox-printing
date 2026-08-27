@@ -2,7 +2,7 @@ import { AdminNotice } from "@/components/admin/AdminNotice";
 import { AdminPageIntro } from "@/components/admin/AdminPageBar";
 import { ProductPageSettingsForm } from "@/components/admin/ProductPageSettingsForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Product page settings" };
 
@@ -13,7 +13,7 @@ type PageProps = {
 export default async function ProductPageSettingsPage({ searchParams }: PageProps) {
   await requireAdmin();
   const { updated } = await searchParams;
-  const { productPageSettings, tabTemplates } = await readCatalog();
+  const { productPageSettings, tabTemplates } = await readCatalogLive();
 
   return (
     <div>

@@ -39,7 +39,7 @@ import {
   deleteTags,
   deleteTabTemplate,
   deleteTabTemplates,
-  readCatalog,
+  readCatalogLive,
   setGlobalTabsEnabled,
   setGlobalFaqsEnabled,
   setGlobalExtraContentEnabled,
@@ -186,7 +186,7 @@ async function buildPackageDraftFromForm(formData: FormData) {
   const uploadedImage =
     imageFile instanceof File && imageFile.size ? await saveProductImage(slug, imageFile) : "";
   const uploadedGallery = await saveProductImages(slug, galleryFiles);
-  const { tabTemplates: library, packages, productPageSettings } = await readCatalog();
+  const { tabTemplates: library, packages, productPageSettings } = await readCatalogLive();
   const tabsOverride = String(formData.get("tabsOverride") ?? "") === "1";
   const faqsOverride = String(formData.get("faqsOverride") ?? "") === "1";
   const extraContentOverride = String(formData.get("extraContentOverride") ?? "") === "1";
@@ -240,7 +240,7 @@ function tabsFromForm(formData: FormData, library: TabTemplate[]): ProductTab[] 
 
 export async function saveProductPageSettingsAction(formData: FormData) {
   await requireAdmin();
-  const { tabTemplates: library, productPageSettings } = await readCatalog();
+  const { tabTemplates: library, productPageSettings } = await readCatalogLive();
   await upsertProductPageSettings({
     globalTabsEnabled: productPageSettings.globalTabsEnabled,
     globalTabs: tabsFromForm(formData, library),
@@ -468,7 +468,7 @@ export async function previewProductCsvAction(csv: string) {
   if (csv.length > MAX_CSV_CHARS) {
     throw new Error("CSV is too large. Keep it under 2MB.");
   }
-  const { packages, categories } = await readCatalog();
+  const { packages, categories } = await readCatalogLive();
   const parsed = parseProductCsv(csv);
   const existing = new Set(packages.map((item) => item.slug));
   return {
@@ -503,7 +503,7 @@ export async function importProductCsvAction(
 
 export async function exportProductsCsvAction() {
   await requireAdmin();
-  const { packages, categories } = await readCatalog();
+  const { packages, categories } = await readCatalogLive();
   const names = Object.fromEntries(categories.map((item) => [item.slug, item.name]));
   return packagesToCsv(packages, names);
 }

@@ -3,7 +3,7 @@ import { GoogleFontStylesheet } from "@/components/GoogleFontStylesheet";
 import { Header } from "@/components/Header";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { colorSchemeCssVars, linkTransitionCssVar } from "@/lib/color-scheme";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalog, STOREFRONT_REVALIDATE_SECONDS } from "@/lib/catalog-store";
 import { normalizeHeroSettings } from "@/lib/hero-slides";
 import {
   collectSiteTypographyFamilies,
@@ -12,10 +12,7 @@ import {
   siteTypographyCssVars,
 } from "@/lib/site-typography";
 
-/** Catalog comes from MySQL; never ship a build-time frozen storefront. */
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = STOREFRONT_REVALIDATE_SECONDS;
 
 export default async function SiteLayout({
   children,

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { AdminNotice } from "@/components/admin/AdminNotice";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Edit product" };
 
@@ -15,7 +15,7 @@ export default async function EditProductPage({ params, searchParams }: EditProd
   await requireAdmin();
   const { slug } = await params;
   const { created, updated } = await searchParams;
-  const { packages, categories, tabTemplates, productPageSettings } = await readCatalog();
+  const { packages, categories, tabTemplates, productPageSettings } = await readCatalogLive();
   const product = packages.find((item) => item.slug === slug);
   if (!product) {
     notFound();

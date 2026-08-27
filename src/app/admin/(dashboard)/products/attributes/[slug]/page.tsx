@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { AdminNotice } from "@/components/admin/AdminNotice";
 import { AttributeForm } from "@/components/admin/AttributeForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Edit attribute" };
 
@@ -15,7 +15,7 @@ export default async function EditAttributePage({ params, searchParams }: EditAt
   await requireAdmin();
   const { slug } = await params;
   const { created, updated } = await searchParams;
-  const attribute = (await readCatalog()).attributes.find((item) => item.slug === slug);
+  const attribute = (await readCatalogLive()).attributes.find((item) => item.slug === slug);
   if (!attribute) {
     notFound();
   }

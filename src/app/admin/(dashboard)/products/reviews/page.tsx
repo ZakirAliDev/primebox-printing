@@ -3,7 +3,7 @@ import { AdminNotice } from "@/components/admin/AdminNotice";
 import { ConfirmSubmit } from "@/components/admin/ConfirmSubmit";
 import { RowActions } from "@/components/admin/RowActions";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Reviews" };
 
@@ -14,7 +14,7 @@ type PageProps = {
 export default async function AdminReviewsPage({ searchParams }: PageProps) {
   await requireAdmin();
   const { q = "", deleted } = await searchParams;
-  const { reviews, packages } = await readCatalog();
+  const { reviews, packages } = await readCatalogLive();
   const productName = Object.fromEntries(packages.map((item) => [item.slug, item.name]));
   const query = q.trim().toLowerCase();
   const rows = query

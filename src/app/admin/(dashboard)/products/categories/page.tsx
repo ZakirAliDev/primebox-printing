@@ -7,7 +7,7 @@ import { RowActions } from "@/components/admin/RowActions";
 import { adminAddNew, adminGhost } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
 import { orderedCategories } from "@/lib/catalog";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Categories" };
 
@@ -18,7 +18,7 @@ type PageProps = {
 export default async function AdminCategoriesPage({ searchParams }: PageProps) {
   await requireAdmin();
   const { q = "", deleted } = await searchParams;
-  const { categories, packages } = await readCatalog();
+  const { categories, packages } = await readCatalogLive();
   const query = q.trim().toLowerCase();
   const rows = query
     ? categories.filter(

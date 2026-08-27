@@ -1,8 +1,5 @@
 import type { NextConfig } from "next";
 
-const NO_STORE =
-  "private, no-cache, no-store, max-age=0, must-revalidate";
-
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
@@ -11,18 +8,6 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "10mb",
     },
-  },
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          { key: "Cache-Control", value: NO_STORE },
-          { key: "CDN-Cache-Control", value: "no-store" },
-          { key: "Surrogate-Control", value: "no-store" },
-        ],
-      },
-    ];
   },
 };
 

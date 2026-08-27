@@ -2,7 +2,7 @@ import { AdminNotice } from "@/components/admin/AdminNotice";
 import { AdminPageIntro } from "@/components/admin/AdminPageBar";
 import { CategoryPageSettingsForm } from "@/components/admin/CategoryPageSettingsForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = { title: "Category page settings" };
 
@@ -13,7 +13,7 @@ type PageProps = {
 export default async function CategoryPageSettingsPage({ searchParams }: PageProps) {
   await requireAdmin();
   const { updated } = await searchParams;
-  const { categoryPageSettings } = await readCatalog();
+  const { categoryPageSettings } = await readCatalogLive();
 
   return (
     <div>

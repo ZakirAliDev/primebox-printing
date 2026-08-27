@@ -1,7 +1,7 @@
 import { AdminPageIntro } from "@/components/admin/AdminPageBar";
 import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { readCatalog } from "@/lib/catalog-store";
+import { readCatalogLive } from "@/lib/catalog-store";
 
 export const metadata = {
   title: "Site settings",
@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function AdminSiteSettingsPage() {
   await requireAdmin();
-  const { siteSettings, categories } = await readCatalog();
+  const { siteSettings, categories } = await readCatalogLive();
 
   return (
     <div>
