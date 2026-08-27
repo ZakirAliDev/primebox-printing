@@ -24,7 +24,9 @@ import { normalizeHomeTestimonialsSettings } from "@/lib/home-testimonials";
 import { normalizeShopByIndustrySettings } from "@/lib/shop-by-industry";
 import { normalizeTrustBarSettings } from "@/lib/trust-bar";
 
-export const revalidate = 300;
+/** Always render on request so hard refresh matches client navigation (no stale ISR HTML). */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const RelatedProductsCarousel = nextDynamic(
   () =>

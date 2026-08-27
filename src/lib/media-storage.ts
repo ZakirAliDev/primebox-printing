@@ -8,6 +8,9 @@ function mediaPathKey(pathname: string): string {
 
 async function upsertMediaAsset(pathname: string, bytes: Buffer, contentType?: string) {
   if (!isDatabaseConfigured()) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("MySQL is required to store uploads in production.");
+    }
     return;
   }
   const prisma = getPrisma();
@@ -37,12 +40,13 @@ export async function readMediaAsset(
       bytes: Buffer.from(row.data),
       contentType: row.contentType || "application/octet-stream",
     };
-  } catch {
+  } catch (error) {
+    console.error("readMediaAsset failed:", error);
     return null;
   }
 }
 
-/** Write to MySQL (source of truth) and best-effort disk cache. */
+/** Write to MySQL (required in production) and best-effort disk cache. */
 export async function storeUploadBytes(options: {
   pathname: string;
   bytes: Uint8Array | Buffer;
@@ -51,6 +55,7 @@ export async function storeUploadBytes(options: {
   localPublicUrl: string;
 }): Promise<string> {
   const buffer = Buffer.from(options.bytes);
+  // MySQL first — this is what survives Hostinger redeploys.
   await upsertMediaAsset(options.pathname, buffer, options.contentType);
 
   try {

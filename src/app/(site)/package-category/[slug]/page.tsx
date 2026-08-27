@@ -25,7 +25,8 @@ type CategoryPageProps = {
   searchParams: Promise<{ page?: string; preview?: string }>;
 };
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;

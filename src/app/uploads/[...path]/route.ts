@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { ensureDatabaseSchema } from "@/lib/db";
-import { readMediaAsset } from "@/lib/media-storage";
+import { readMediaAsset, storeUploadBytes } from "@/lib/media-storage";
 import { resolveReadableUpload } from "@/lib/upload-paths";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,9 @@ const CONTENT_TYPES: Record<string, string> = {
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
 };
+
+/** Avoid year-long CDN ghosts of deleted files; soft-nav was masking 404s via cache. */
+const IMAGE_CACHE = "public, max-age=300, stale-while-revalidate=86400";
 
 export async function GET(
   _request: Request,
@@ -44,7 +47,8 @@ export async function GET(
       status: 200,
       headers: {
         "Content-Type": fromDb.contentType,
-        "Cache-Control": "public, max-age=31536000, immutable",
+        "Cache-Control": IMAGE_CACHE,
+        "CDN-Cache-Control": IMAGE_CACHE,
         "X-Media-Source": "database",
       },
     });
@@ -61,7 +65,6 @@ export async function GET(
 
   // Backfill MySQL so the next redeploy still has this file.
   try {
-    const { storeUploadBytes } = await import("@/lib/media-storage");
     await storeUploadBytes({
       pathname: relative,
       bytes,
@@ -69,15 +72,16 @@ export async function GET(
       localAbsolutePath: filePath,
       localPublicUrl: `/${relative}`,
     });
-  } catch {
-    // ignore backfill errors
+  } catch (error) {
+    console.warn("media backfill failed:", error);
   }
 
   return new NextResponse(new Uint8Array(bytes), {
     status: 200,
     headers: {
       "Content-Type": contentType,
-      "Cache-Control": "public, max-age=31536000, immutable",
+      "Cache-Control": IMAGE_CACHE,
+      "CDN-Cache-Control": IMAGE_CACHE,
       "X-Media-Source": "disk",
     },
   });

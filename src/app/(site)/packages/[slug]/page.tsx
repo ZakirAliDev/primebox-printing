@@ -32,7 +32,8 @@ type PackagePageProps = {
   searchParams: Promise<{ sent?: string; error?: string; preview?: string }>;
 };
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params, searchParams }: PackagePageProps) {
   const { slug } = await params;
