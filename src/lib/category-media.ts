@@ -1,6 +1,7 @@
 import path from "node:path";
 import { promises as fs } from "node:fs";
 import { storeUploadFile } from "@/lib/media-storage";
+import { uploadSubdir } from "@/lib/upload-paths";
 
 const ALLOWED_TYPES = new Map([
   ["image/jpeg", "jpg"],
@@ -20,7 +21,7 @@ const ALLOWED_EXTENSIONS = new Map([
 const MAX_BYTES = 5 * 1024 * 1024;
 
 function uploadDir(slug: string) {
-  return path.join(process.cwd(), "public/uploads/categories", slug);
+  return uploadSubdir("categories", slug);
 }
 
 function extensionFor(file: File) {

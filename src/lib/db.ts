@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { ensurePersistentUploads } from "@/lib/upload-paths";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -48,6 +49,7 @@ export async function ensureDatabaseSchema(): Promise<void> {
 
   if (!globalForPrisma.catalogSchemaReady) {
     globalForPrisma.catalogSchemaReady = (async () => {
+      await ensurePersistentUploads();
       const prisma = getPrisma();
       await prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS \`catalog_document\` (

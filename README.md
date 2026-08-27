@@ -8,7 +8,7 @@ Catalog and quote forms on the public site. Admin creates customer accounts and 
 
 - Next.js 16 (App Router)
 - Hostinger MySQL (catalog source of truth) + cache-first reads for page speed
-- Local disk uploads under `public/uploads/`
+- Local disk uploads (`public/uploads/` locally; Hostinger uses `../persistent-uploads` so redeploys do not wipe images)
 - Stripe (payments) — planned
 
 ## Local development
@@ -38,6 +38,8 @@ DB_PORT=3306
 DB_USER=…                 # e.g. u821685055_primebox_admin
 DB_PASSWORD=…             # MySQL password
 DB_NAME=…                 # e.g. u821685055_primebox
+# Optional. Default on Hostinger: ../persistent-uploads (survives redeploy)
+# UPLOADS_DIR=/home/USER/domains/checkmycode.site/persistent-uploads
 ```
 
 Do **not** set Railway or Vercel Blob variables.
@@ -45,4 +47,4 @@ Do **not** set Railway or Vercel Blob variables.
 3. Deploy from GitHub (`main`), Node.js / Next.js.
 4. After the first page load or admin save, phpMyAdmin should show `catalog_document` and `admin_preview`.
 
-Images upload to `public/uploads/` on the Hostinger disk.
+Images are stored outside the deploy folder (`persistent-uploads`) so **redeploy / restart does not delete them**. If an image already 404s, re-upload it once in admin after this fix is live.
