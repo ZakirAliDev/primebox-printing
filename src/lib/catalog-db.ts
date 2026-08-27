@@ -80,17 +80,31 @@ async function writeCatalogRow(catalog: Catalog): Promise<Catalog> {
   return verify.catalog;
 }
 
+function isProductionBuild() {
+  return process.env.NEXT_PHASE === "phase-production-build";
+}
+
 export async function loadCatalogDocument(): Promise<Catalog> {
   requireDatabase();
-  await ensureDatabaseSchema();
 
-  const existing = await readCatalogRow();
-  if (existing) {
-    return existing.catalog;
+  try {
+    await ensureDatabaseSchema();
+
+    const existing = await readCatalogRow();
+    if (existing) {
+      return existing.catalog;
+    }
+
+    // First boot: empty catalog in MySQL (never seed from catalog.json at runtime).
+    return writeCatalogRow(emptyCatalog());
+  } catch (error) {
+    // ISR prerender runs at build time; Hostinger may not expose MySQL then.
+    if (isProductionBuild()) {
+      console.warn("Catalog unavailable at build time; using empty shell (ISR fills on first request).");
+      return emptyCatalog();
+    }
+    throw error;
   }
-
-  // First boot: empty catalog in MySQL (never seed from catalog.json at runtime).
-  return writeCatalogRow(emptyCatalog());
 }
 
 export async function saveCatalogDocument(catalog: Catalog): Promise<void> {

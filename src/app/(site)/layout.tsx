@@ -3,7 +3,7 @@ import { GoogleFontStylesheet } from "@/components/GoogleFontStylesheet";
 import { Header } from "@/components/Header";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { colorSchemeCssVars, linkTransitionCssVar } from "@/lib/color-scheme";
-import { readCatalog, STOREFRONT_REVALIDATE_SECONDS } from "@/lib/catalog-store";
+import { readCatalog } from "@/lib/catalog-store";
 import { normalizeHeroSettings } from "@/lib/hero-slides";
 import {
   collectSiteTypographyFamilies,
@@ -12,7 +12,7 @@ import {
   siteTypographyCssVars,
 } from "@/lib/site-typography";
 
-export const revalidate = STOREFRONT_REVALIDATE_SECONDS;
+export const revalidate = 300;
 
 export default async function SiteLayout({
   children,

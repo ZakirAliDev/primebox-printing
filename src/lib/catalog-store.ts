@@ -12,7 +12,7 @@ import { resolveCategorySlugs, type ProductCsvRow } from "@/lib/product-csv";
 /** Bust this tag on every admin catalog write. */
 export const CATALOG_CACHE_TAG = "catalog";
 
-/** Storefront pages: cache catalog in memory between MySQL reads (seconds). */
+/** Storefront ISR window (seconds). Must match `export const revalidate = 300` on public routes. */
 export const STOREFRONT_REVALIDATE_SECONDS = 300;
 
 const loadCachedCatalog = unstable_cache(

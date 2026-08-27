@@ -13,7 +13,7 @@ import {
 import { HomeHero } from "@/components/HomeHero";
 import { TrustBar } from "@/components/TrustBar";
 import { packageCoverImage } from "@/lib/catalog";
-import { readCatalog, STOREFRONT_REVALIDATE_SECONDS } from "@/lib/catalog-store";
+import { readCatalog } from "@/lib/catalog-store";
 import {
   FEATURED_CATEGORY_SUBTITLE,
   FEATURED_CATEGORY_TITLE,
@@ -24,7 +24,7 @@ import { normalizeHomeTestimonialsSettings } from "@/lib/home-testimonials";
 import { normalizeShopByIndustrySettings } from "@/lib/shop-by-industry";
 import { normalizeTrustBarSettings } from "@/lib/trust-bar";
 
-export const revalidate = STOREFRONT_REVALIDATE_SECONDS;
+export const revalidate = 300;
 
 const RelatedProductsCarousel = nextDynamic(
   () =>

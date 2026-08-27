@@ -9,7 +9,7 @@ import { QuoteForm } from "@/components/QuoteForm";
 import { RichText } from "@/components/RichText";
 import { readPreview } from "@/lib/admin-preview";
 import { packageCoverImage, relatedPackages, resolveProductExtraContent, resolveProductFaqs, resolveProductTabs } from "@/lib/catalog";
-import { readCatalog, STOREFRONT_REVALIDATE_SECONDS } from "@/lib/catalog-store";
+import { readCatalog } from "@/lib/catalog-store";
 import { plainTextFromHtml } from "@/lib/rich-text";
 
 const ProductDataTabs = nextDynamic(
@@ -32,7 +32,7 @@ type PackagePageProps = {
   searchParams: Promise<{ sent?: string; error?: string; preview?: string }>;
 };
 
-export const revalidate = STOREFRONT_REVALIDATE_SECONDS;
+export const revalidate = 300;
 
 export async function generateMetadata({ params, searchParams }: PackagePageProps) {
   const { slug } = await params;
